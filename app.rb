@@ -17,6 +17,7 @@ module App
     end
 
     def process
+      logger.info("Processing Request: #{payload}")
       request = request_parser.parse(payload)
       route = Router.new(request).resolve
       response = route.controller.new.handle(request:, route:)
