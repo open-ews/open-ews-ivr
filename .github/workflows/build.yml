@@ -67,7 +67,7 @@ jobs:
           echo "matrixLength=$(echo $matrix | jq length)" >> $GITHUB_OUTPUT
 
 
-  build_packages:
+  build-packages:
     name: Build Packages
     runs-on: ubuntu-24.04-arm
     needs:
