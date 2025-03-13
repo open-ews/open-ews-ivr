@@ -1,0 +1,11 @@
+default: &default
+  foo: bar
+  secret: development-secret
+
+production: &production
+  <<: *default
+  secret: "<%= app_settings.credentials.fetch('secret') %>"
+
+staging:
+  <<: *production
+  secret: "<%= app_settings.credentials.fetch('secret') %>"
