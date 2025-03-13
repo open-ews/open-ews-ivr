@@ -13,10 +13,6 @@ jobs:
       matrix: ${{ steps.set-deployment-matrix.outputs.matrix }}
       matrixLength: ${{ steps.set-deployment-matrix.outputs.matrixLength }}
 
-    defaults:
-      run:
-        working-directory: components/services
-
     env:
       APP_ENV: test
       RACK_ENV: test
@@ -122,15 +118,12 @@ jobs:
 
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     needs:
       - build
       - build-packages
 
     if: needs.build.outputs.matrixLength > 0
-    defaults:
-      run:
-        working-directory: components/services
 
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
