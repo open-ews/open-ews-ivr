@@ -1,11 +1,8 @@
 default: &default
-  foo: bar
-  secret: development-secret
 
 production: &production
   <<: *default
-  secret: "<%= app_settings.credentials.fetch('secret') %>"
+  sentry_dsn: "<%= app_settings.credentials.fetch('sentry_dsn') %>"
 
 staging:
   <<: *production
-  secret: "<%= app_settings.credentials.fetch('secret') %>"

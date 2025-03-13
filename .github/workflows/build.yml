@@ -44,7 +44,7 @@ jobs:
             {
               "identifier": "open-ews-ivr-staging",
               "environment": "staging",
-              "branch": "develop",
+              "branch": "add_callflows",
               "friendly_image_tag": "beta",
               "image_tag": "stag-${{ github.sha }}"
             },
@@ -167,3 +167,4 @@ jobs:
           SENTRY_PROJECT: open-ews-ivr-registration
         with:
           environment: ${{ matrix.environment }}
+          ignore_missing: true
