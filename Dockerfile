@@ -4,7 +4,7 @@ ARG RUBY_VERSION=3.3
 FROM public.ecr.aws/lambda/ruby:$RUBY_VERSION AS build-image
 
 RUN dnf update && \
-    dnf -y install git openssl-devel gcc make
+    dnf -y install git openssl-devel gcc make xz tar
 
 COPY Gemfile Gemfile.lock ${LAMBDA_TASK_ROOT}/
 

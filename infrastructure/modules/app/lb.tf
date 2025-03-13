@@ -24,6 +24,13 @@ resource "aws_lb_listener_rule" "public" {
   }
 }
 
+resource "aws_lb_target_group_attachment" "public" {
+  count            = var.public_route53_zone != null ? 1 : 0
+  target_group_arn = aws_lb_target_group.public[0].arn
+  target_id        = aws_lambda_function.this.arn
+  depends_on       = [aws_lambda_permission.this]
+}
+
 resource "aws_lb_target_group" "internal" {
   name        = substr("${var.identifier}-internal", 0, 32)
   target_type = "lambda"
@@ -46,4 +53,10 @@ resource "aws_lb_listener_rule" "internal" {
       ]
     }
   }
+}
+
+resource "aws_lb_target_group_attachment" "internal" {
+  target_group_arn = aws_lb_target_group.internal.arn
+  target_id        = aws_lambda_function.this.arn
+  depends_on       = [aws_lambda_permission.this]
 }
