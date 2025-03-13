@@ -114,6 +114,7 @@ jobs:
           platforms: linux/arm64
           cache-from: type=gha,scope=${{ matrix.identifier }}
           cache-to: type=gha,mode=max,scope=${{ matrix.identifier }}
+          provenance: false
           tags: |
             ${{ secrets.ECR_REGISTRY }}/${{ env.REPOSITORY_NAME }}:${{ matrix.image_tag }}-arm64
             ${{ secrets.GHCR_REGISTRY }}/${{ env.REPOSITORY_NAME }}:${{ matrix.friendly_image_tag }}-arm64
