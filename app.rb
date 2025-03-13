@@ -20,7 +20,8 @@ module App
     def process
       request = request_parser.parse(payload)
       route = Router.new(request).resolve
-      route.controller.new.handle(request:, route:)
+      response = route.controller.new.handle(request:, route:)
+      serialize(response)
     rescue Errors::NotFoundError
       serialize(ALBResponse::NotFoundResponse)
     rescue Exception => e

@@ -7,7 +7,7 @@ module ALBResponse
         status_code: 200,
         status_description: "200 OK",
         is_base64_encoded: true,
-        body: Base64.encode64(body),
+        body: Base64.urlsafe_encode64(body),
         headers: {
           "Content-Type": content_type,
           **headers
