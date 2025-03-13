@@ -4,27 +4,34 @@ require_relative "config/application"
 
 module App
   class Handler
-    attr_reader :event, :context, :logger
+    attr_reader :payload, :request_parser, :context, :logger
 
     def self.process(event:, context:)
-      logger = Logger.new($stdout)
-      logger.info("## Processing Event")
-      logger.info(event)
-
-      new(event:, context:, logger:).process
-    rescue Exception => e
-      Sentry.capture_exception(e)
-      raise(e)
+      new(payload: event, context:).process
     end
 
-    def initialize(event:, **options)
-      @event = ALBEventParser.new.parse(event)
+    def initialize(payload:, **options)
+      @payload = payload
       @context = options.fetch(:context)
-      @logger = options.fetch(:logger)
+      @request_parser = options.fetch(:request_parser) { RequestParser.new }
+      @logger = options.fetch(:logger) { Logger.new($stdout) }
     end
 
     def process
-      logger.info(event)
+      request = request_parser.parse(payload)
+      route = Router.new(request).resolve
+      route.controller.new.handle(request:, route:)
+    rescue Errors::NotFoundError
+      serialize(ALBResponse::NotFoundResponse)
+    rescue Exception => e
+      puts(e)
+      logger.error(e)
+      Sentry.capture_exception(e)
+      serialize(ALBResponse::InternalServerErrorResponse)
+    end
+
+    def serialize(response)
+      ALBResponseSerializer.new(response).as_json
     end
   end
 end
