@@ -42,14 +42,14 @@ jobs:
           matrixSource=$(cat << EOF
           [
             {
-              "identifier": "open-ews-ivr-registration-staging",
+              "identifier": "open-ews-ivr-staging",
               "environment": "staging",
               "branch": "add_infrastructure",
               "friendly_image_tag": "beta",
               "image_tag": "stag-${{ github.sha }}"
             },
             {
-              "identifier": "open-ews-ivr-registration",
+              "identifier": "open-ews-ivr",
               "environment": "production",
               "branch": "main",
               "friendly_image_tag": "latest",

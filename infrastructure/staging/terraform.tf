@@ -31,6 +31,16 @@ data "terraform_remote_state" "core" {
   }
 }
 
+data "terraform_remote_state" "open_ews_core_infrastructure" {
+  backend = "s3"
+
+  config = {
+    bucket = "infrastructure.open-ews.org"
+    key    = "open-ews-core.tfstate"
+    region = var.aws_default_region
+  }
+}
+
 data "terraform_remote_state" "core_infrastructure" {
   backend = "s3"
 
