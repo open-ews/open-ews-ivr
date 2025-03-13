@@ -25,7 +25,7 @@ RSpec.describe "Handle ALB Events" do
     expect(response).to include(
       statusCode: 200,
       headers: {
-        "Content-Type": "application/xml"
+        "Content-Type" => "application/xml"
       },
       body: Base64.urlsafe_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Say voice=\"alice\">hello there</Say>\n</Response>\n")
     )

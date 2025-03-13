@@ -1,11 +1,11 @@
 class Router
   class RouteNotFoundError < Errors::NotFoundError; end
 
-  RouteDefinition = Data.define(:path, :controller)
+  RouteDefinition = Data.define(:http_method, :path, :controller)
   Route = Data.define(:controller, :parameters)
 
   ROUTE_DEFINITIONS = [
-    RouteDefinition.new(path: %r{\A\/ivr_flows\/(?<id>\w+)\z}, controller: IVRFlowsController)
+    RouteDefinition.new(http_method: :post, path: %r{\A\/ivr_flows\/(?<id>\w+)\z}, controller: IVRFlowsController)
   ].freeze
 
   attr_reader :request
@@ -16,7 +16,7 @@ class Router
 
   def resolve
     route = ROUTE_DEFINITIONS.find(-> { raise RouteNotFoundError }) do
-      _1.path.match?(request.path)
+      _1.http_method == request.http_method && _1.path.match?(request.path)
     end
 
     Route.new(controller: route.controller, parameters: route_params_for(route, request.path))

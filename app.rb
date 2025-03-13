@@ -17,13 +17,10 @@ module App
     end
 
     def process
-      logger.info("Processing request: #{payload}")
       request = request_parser.parse(payload)
-      logger.info("Request: #{request}")
       route = Router.new(request).resolve
-      logger.info("Route: #{route}")
       response = route.controller.new.handle(request:, route:)
-      logger.info("Response: #{response}")
+      logger.info(serialize(response))
       serialize(response)
     rescue Errors::NotFoundError
       serialize(ALBResponse::NotFoundResponse)

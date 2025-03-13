@@ -9,7 +9,7 @@ module ALBResponse
         is_base64_encoded: true,
         body: Base64.urlsafe_encode64(body),
         headers: {
-          "Content-Type": content_type,
+          "Content-Type" => content_type,
           **headers
         }
       )

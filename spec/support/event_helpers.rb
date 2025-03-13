@@ -6,7 +6,7 @@ module EventHelpers
     headers = payload.fetch("headers")
 
     data = {
-      http_method: "GET",
+      http_method: :post,
       path: "/",
       body: "",
       query_string_parameters: "1234ABCD",
@@ -15,7 +15,7 @@ module EventHelpers
     }.merge(data)
 
     overrides = {
-      "httpMethod" => data.fetch(:http_method),
+      "httpMethod" => data.fetch(:http_method).to_s.upcase,
       "path" => data.fetch(:path),
       "queryStringParameters" => {
         "query" => data.fetch(:query_string_parameters)

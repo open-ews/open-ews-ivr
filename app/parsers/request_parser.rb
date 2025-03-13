@@ -10,7 +10,7 @@ class RequestParser
 
     def call
       Request.new(
-        http_method: payload.fetch("httpMethod"),
+        http_method: payload.fetch("httpMethod").downcase.to_sym,
         path: payload.fetch("path"),
         query_parameters: payload.dig("queryStringParameters", "query"),
         headers: payload.fetch("headers"),
