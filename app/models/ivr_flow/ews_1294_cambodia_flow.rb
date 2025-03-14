@@ -8,8 +8,8 @@ module IVRFlow
       CHOICES = [ 1, 2 ].freeze
       RESPONSE_STATUS = "main_menu_prompted".freeze
       FILENAME = "main_menu".freeze
-      LANGUAGE = "khm"
-      FILE_EXTENSION = "mp3"
+      LANGUAGE = "khm".freeze
+      FILE_EXTENSION = "mp3".freeze
 
       def self.response_status
         RESPONSE_STATUS
