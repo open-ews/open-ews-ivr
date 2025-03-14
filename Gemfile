@@ -6,6 +6,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem "aws-sdk-ssm"
 gem "encrypted_credentials", github: "somleng/encrypted_credentials"
+gem "pumi"
 gem "sentry-ruby"
 gem "twilio-ruby"
 
@@ -22,4 +23,5 @@ group :test do
   gem "rspec"
   gem "simplecov", require: false
   gem "simplecov-cobertura", require: false
+  gem "activesupport"
 end

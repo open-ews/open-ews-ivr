@@ -2,8 +2,6 @@ class RequestParser
   class Parser
     attr_reader :payload
 
-    Request = Data.define(:http_method, :path, :query_parameters, :headers, :body)
-
     def initialize(payload)
       @payload = payload
     end
@@ -12,7 +10,7 @@ class RequestParser
       Request.new(
         http_method: payload.fetch("httpMethod").downcase.to_sym,
         path: payload.fetch("path"),
-        query_parameters: payload.dig("queryStringParameters", "query"),
+        query_parameters: payload.fetch("queryStringParameters"),
         headers: payload.fetch("headers"),
         body:
       )

@@ -9,7 +9,7 @@ module EventHelpers
       http_method: :post,
       path: "/",
       body: "",
-      query_string_parameters: "1234ABCD",
+      query_string_parameters: {},
       is_base64_encoded: false,
       headers:
     }.merge(data)
@@ -17,9 +17,7 @@ module EventHelpers
     overrides = {
       "httpMethod" => data.fetch(:http_method).to_s.upcase,
       "path" => data.fetch(:path),
-      "queryStringParameters" => {
-        "query" => data.fetch(:query_string_parameters)
-      },
+      "queryStringParameters" => data.fetch(:query_string_parameters),
       "headers" => data.fetch(:headers),
       "body" => data.fetch(:body),
       "isBase64Encoded" => data.fetch(:is_base64_encoded)
