@@ -148,7 +148,7 @@ module IVRFlow
     end
 
     def build_audio_url(**)
-      super(audio_namespace: AUDIO_NAMESPACE, **)
+      super(namespace: AUDIO_NAMESPACE, **)
     end
 
     def feedback_enabled?

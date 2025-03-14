@@ -14,15 +14,12 @@ module IVRFlow
       uri.to_s
     end
 
-    def build_audio_url(audio_namespace:, **)
-      AudioURL.new(namespace: audio_namespace, **).url
+    def build_audio_url(**)
+      AudioURL.new(**).url
     end
 
     def status
       request.query_parameters.fetch("status", "answered")
-    end
-
-    def redirect
     end
   end
 end
