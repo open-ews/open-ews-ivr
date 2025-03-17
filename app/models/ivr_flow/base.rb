@@ -8,7 +8,7 @@ module IVRFlow
 
     private
 
-    def build_redirect_url(params)
+    def build_redirect_url(**params)
       uri = URI(request.path)
       uri.query = URI.encode_www_form(params)
       uri.to_s

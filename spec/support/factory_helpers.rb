@@ -1,10 +1,14 @@
 module FactoryHelpers
   def build_request(**params)
+    headers = params.fetch(:headers, { "host" => "ivr.open-ews.org", "x-forwarded-proto" => "https" })
+
     Request.new(
       http_method: :post,
       path: "/",
       query_parameters: {},
-      headers: {},
+      headers:,
+      host: headers.fetch("host"),
+      protocol: headers.fetch("x-forwarded-proto"),
       body: "",
       **params
     )

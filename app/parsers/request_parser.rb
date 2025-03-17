@@ -11,8 +11,10 @@ class RequestParser
         http_method: payload.fetch("httpMethod").downcase.to_sym,
         path: payload.fetch("path"),
         query_parameters: payload.fetch("queryStringParameters"),
-        headers: payload.fetch("headers"),
-        body:
+        headers:,
+        body:,
+        host: headers.fetch("host"),
+        protocol: headers.fetch("x-forwarded-proto")
       )
     end
 
@@ -24,6 +26,10 @@ class RequestParser
 
     def body
       base64_encoded? ? Base64.decode64(payload.fetch("body")) : payload.fetch("body")
+    end
+
+    def headers
+      payload.fetch("headers")
     end
   end
 

@@ -4,45 +4,7 @@ module IVRFlow
   class EWS1294CambodiaFlow < Base
     AUDIO_NAMESPACE = "ews_registration".freeze
 
-    class MainMenu < IVRFlow::Menu
-      CHOICES = [ 1, 2 ].freeze
-      RESPONSE_STATUS = "main_menu_prompted".freeze
-      FILENAME = "main_menu".freeze
-      LANGUAGE = "khm".freeze
-      FILE_EXTENSION = "mp3".freeze
-
-      def self.response_status
-        RESPONSE_STATUS
-      end
-
-      def register?
-        request.twilio.digits == 1
-      end
-
-      def record_feedback?
-        request.twilio.digits == 2
-      end
-
-      def no_response?
-        request.twilio.digits.nil?
-      end
-
-      def invalid_response?
-        !CHOICES.include?(request.twilio.digits)
-      end
-
-      private
-
-      def audio_url
-        super(
-          filename: FILENAME,
-          language: LANGUAGE,
-          file_extension: FILE_EXTENSION
-        )
-      end
-    end
-
-    class LanguageMenu < Menu
+    class LanguageMenu < IVRFlow::Menu
       # https://en.wikipedia.org/wiki/ISO_639-3
       # Khmer         | https://iso639-3.sil.org/code/khm | https://en.wikipedia.org/wiki/Khmer_language
       # Central Mnong | https://iso639-3.sil.org/code/cmo | https://en.wikipedia.org/wiki/Mnong_language
@@ -50,58 +12,139 @@ module IVRFlow
       # Tampuan       | https://iso639-3.sil.org/code/tpu | https://en.wikipedia.org/wiki/Tampuan_language
       # Krung         | https://iso639-3.sil.org/code/krr | https://en.wikipedia.org/wiki/Brao_language
 
-      CHOICES = [ "khm", "cmo", "jra", "tpu", "krr" ].freeze
-      RESPONSE_STATUS = "language_prompted".freeze
-      FILENAME = "select_language".freeze
+      Language = Data.define(:id, :name)
 
-      def self.response_status
-        RESPONSE_STATUS
+      CHOICES = [
+        Language.new(id: "khm", name: "Khmer"),
+        Language.new(id: "cmo", name: "Central Mnong"),
+        Language.new(id: "jra", name: "Jarai"),
+        Language.new(id: "tpu", name: "Tampuan"),
+        Language.new(id: "krr", name: "Krung")
+      ].freeze
+
+      def valid_choice?
+        (1..CHOICES.size).member?(request.twilio.digits)
       end
 
-      private
-
-      def audio_url
-        super(filename: FILENAME)
+      def selection
+        CHOICES[request.twilio.digits - 1] if valid_choice?
       end
     end
 
-    class ProvinceMenu
-      class Province
-        attr_reader :code, :available_languages
+    class MainMenu < IVRFlow::Menu
+      def leave_feedback?
+        request.twilio.digits == 2
+      end
+    end
 
-        def initialize(code:, available_languages: [ "khm" ], **)
-          @code = code
+    class ProvinceMenu < IVRFlow::Menu
+      class Province
+        attr_reader :id, :available_languages
+
+        def initialize(id:, available_languages: [ "khm" ], **)
+          @id = id
           @available_languages = available_languages
         end
       end
 
+      attr_reader :language
+
+      def initialize(language:, **)
+        @language = language
+        super(**)
+      end
+
       MENU = [
-        Province.new(code: "15", name: "Pursat"),
-        Province.new(code: "01", name: "Banteay Meanchey"),
-        Province.new(code: "06", name: "Kampong Thom"),
-        Province.new(code: "07", name: "Kampot"),
-        Province.new(code: "04", name: "Kampong Chhnang"),
-        Province.new(code: "17", name: "Siem Reap"),
-        Province.new(code: "02", name: "Battambang"),
-        Province.new(code: "10", name: "Kratie"),
-        Province.new(code: "19", name: "Steung Treng"),
-        Province.new(code: "13", name: "Preah Vihear"),
-        Province.new(code: "22", name: "Oddar Meanchey"),
-        Province.new(code: "23", name: "Kep"),
-        Province.new(code: "24", name: "Pailin"),
-        Province.new(code: "09", name: "Koh Kong"),
-        Province.new(code: "18", name: "Preah Sihanouk"),
-        Province.new(code: "03", name: "Kampong Cham"),
-        Province.new(code: "25", name: "Tboung Khmum"),
-        Province.new(code: "14", name: "Prey Veng"),
-        Province.new(code: "16", name: "Ratanakkiri", available_languages: %w[khm jra tpu krr]),
-        Province.new(code: "11", name: "Mondulkiri", available_languages: %w[khm cmo]),
-        Province.new(code: "20", name: "Svay Rieng"),
-        Province.new(code: "05", name: "Kampong Speu"),
-        Province.new(code: "21", name: "Takao"),
-        Province.new(code: "08", name: "Kandal"),
-        Province.new(code: "12", name: "Phnom Penh")
+        Province.new(id: "15", name: "Pursat"),
+        Province.new(id: "01", name: "Banteay Meanchey"),
+        Province.new(id: "06", name: "Kampong Thom"),
+        Province.new(id: "07", name: "Kampot"),
+        Province.new(id: "04", name: "Kampong Chhnang"),
+        Province.new(id: "17", name: "Siem Reap"),
+        Province.new(id: "02", name: "Battambang"),
+        Province.new(id: "10", name: "Kratie"),
+        Province.new(id: "19", name: "Steung Treng"),
+        Province.new(id: "13", name: "Preah Vihear"),
+        Province.new(id: "22", name: "Oddar Meanchey"),
+        Province.new(id: "23", name: "Kep"),
+        Province.new(id: "24", name: "Pailin"),
+        Province.new(id: "09", name: "Koh Kong"),
+        Province.new(id: "18", name: "Preah Sihanouk"),
+        Province.new(id: "03", name: "Kampong Cham"),
+        Province.new(id: "25", name: "Tboung Khmum"),
+        Province.new(id: "14", name: "Prey Veng"),
+        Province.new(id: "16", name: "Ratanakkiri", available_languages: %w[khm jra tpu krr]),
+        Province.new(id: "11", name: "Mondulkiri", available_languages: %w[khm cmo]),
+        Province.new(id: "20", name: "Svay Rieng"),
+        Province.new(id: "05", name: "Kampong Speu"),
+        Province.new(id: "21", name: "Takao"),
+        Province.new(id: "08", name: "Kandal"),
+        Province.new(id: "12", name: "Phnom Penh")
       ].freeze
+
+      def valid_choice?
+        choices.include?(request.twilio.digits)
+      end
+
+      def selection
+        MENU[request.twilio.digits - 1] if valid_choice?
+      end
+
+      private
+
+      def choices
+        @choices ||= MENU.each_with_object([]).with_index do |(province, result), index|
+          result << (index + 1) if province.available_languages.include?(language)
+        end
+      end
+    end
+
+    class DistrictMenu < IVRFlow::Menu
+      attr_reader :language, :province
+
+      def initialize(language:, province:, **)
+        @language = language
+        @province = province
+        super(**)
+      end
+
+      def valid_choice?
+        (1..districts.size).member?(request.twilio.digits)
+      end
+
+      def selection
+        districts[request.twilio.digits - 1] if valid_choice?
+      end
+
+      private
+
+      def districts
+        @districts ||= Pumi::District.where(province_id: province).sort_by(&:id)
+      end
+    end
+
+    class CommuneMenu < IVRFlow::Menu
+      attr_reader :language, :district
+
+      def initialize(language:, district:, **)
+        @language = language
+        @district = district
+        super(**)
+      end
+
+      def valid_choice?
+        (1..communes.size).member?(request.twilio.digits)
+      end
+
+      def selection
+        communes[request.twilio.digits - 1] if valid_choice?
+      end
+
+      private
+
+      def communes
+        @communes ||= Pumi::Commune.where(district_id: district).sort_by(&:id)
+      end
     end
 
     FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS = [
@@ -118,19 +161,55 @@ module IVRFlow
         end
       when "introduction_played"
         if feedback_enabled?
-          main_menu.prompt
+          main_menu.prompt(action: build_redirect_url(status: :main_menu_prompted), audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3"))
         else
-          language_menu.prompt
+          prompt_language
         end
-      when MainMenu.response_status
-        if main_menu.register? || main_menu.no_response?
-          language_menu.prompt
-        elsif main_menu.record_feedback?
+      when "main_menu_prompted"
+        if main_menu.leave_feedback?
           Twilio::TwiML::VoiceResponse.new do |response|
             response.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3"))
-            response.record(recording_status_callback: url_helpers.twilio_webhooks_recording_status_callbacks_url)
+            response.record(action: build_redirect_url(status: :feedback_recorded), recording_status_callback: Router.url_for(path: "/ivr_flows/ews_1294_cambodia/feedback", host: request.host, scheme: request.protocol))
           end
-        elsif main_menu.invalid_response?
+        else
+          prompt_language
+        end
+      when "feedback_recorded"
+        Twilio::TwiML::VoiceResponse.new do |response|
+          response.play(url: build_audio_url(filename: :feedback_successful, language: "khm", file_extension: "mp3"))
+          response.hangup
+        end
+      when "language_prompted"
+        if language_menu.valid_choice?
+          @language = language_menu.selection.id
+          prompt_province
+        else
+          prompt_language
+        end
+      when "province_prompted"
+        if province_menu.valid_choice?
+          @province = province_menu.selection.id
+          prompt_district
+        else
+          prompt_province
+        end
+      when "district_prompted"
+        if district_menu.valid_choice?
+          @district = district_menu.selection.id
+          prompt_commune
+        else
+          prompt_district
+        end
+      when "commune_prompted"
+        if commune_menu.valid_choice?
+          @commune = commune_menu.selection.id
+          # create beneficiary here
+          Twilio::TwiML::VoiceResponse.new do |response|
+            response.play(url: build_audio_url(filename: :registration_successful, language:))
+            response.hangup
+          end
+        else
+          prompt_commune
         end
       end
 
@@ -140,11 +219,62 @@ module IVRFlow
     private
 
     def main_menu
-      @main_menu ||= MainMenu.new(audio_namespace: AUDIO_NAMESPACE, request:)
+      @main_menu ||= MainMenu.new(request:)
     end
 
     def language_menu
-      @language_menu ||= LanguageMenu.new(audio_namespace: AUDIO_NAMESPACE, request:)
+      @language_menu ||= LanguageMenu.new(request:)
+    end
+
+    def province_menu
+      @province_menu ||= ProvinceMenu.new(request:, language:)
+    end
+
+    def district_menu
+      @district_menu ||= DistrictMenu.new(request:, language:, province:)
+    end
+
+    def commune_menu
+      @commune_menu ||= CommuneMenu.new(request:, language:, district:)
+    end
+
+    def prompt_language
+      language_menu.prompt(action: build_redirect_url(status: :language_prompted), audio_url: build_audio_url(filename: :select_language))
+    end
+
+    def prompt_province
+      province_menu.prompt(action: build_redirect_url(status: :province_prompted), audio_url: build_audio_url(filename: :select_province, language:))
+    end
+
+    def prompt_district
+      district_menu.prompt(action: build_redirect_url(status: :district_prompted), audio_url: build_audio_url(filename: province, language:))
+    end
+
+    def prompt_commune
+      commune_menu.prompt(action: build_redirect_url(status: :commune_prompted), audio_url: build_audio_url(filename: district, language:))
+    end
+
+    def build_redirect_url(**params)
+      super(
+        **{
+          "language" => language,
+          "province" => province,
+          "district" => district,
+          **params
+        }.compact
+      )
+    end
+
+    def language
+      @language ||= request.query_parameters["language"]
+    end
+
+    def province
+      @province ||= request.query_parameters["province"]
+    end
+
+    def district
+      @district ||= request.query_parameters["district"]
     end
 
     def build_audio_url(**)

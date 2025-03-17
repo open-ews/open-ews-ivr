@@ -20,7 +20,7 @@ module App
       logger.info("Processing Request: #{payload}")
       request = request_parser.parse(payload)
       route = Router.new(request).resolve
-      response = route.controller.new.handle(request:, route:)
+      response = route.controller.new.public_send(route, request:, route:)
       logger.info(serialize(response))
       serialize(response)
     rescue Errors::NotFoundError
