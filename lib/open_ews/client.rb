@@ -11,7 +11,11 @@ module OpenEWS
     end
 
     def fetch_account_settings
-      do_request(Net::HTTP::Get.new(build_request_uri("/v1/account")), response_parser: ResponseParser::Account.new)
+      do_request(Net::HTTP::Get.new(build_request_uri("/v1/account")), response_parser: ResponseParser::AccountParser.new)
+    end
+
+    def list_beneficiaries(**options)
+      do_request(Net::HTTP::Get.new(build_request_uri("/v1/beneficiaries", query_parameters: options)), response_parser: ResponseParser::CollectionParser.new(ResponseParser::BeneficiaryParser.new))
     end
 
     def create_beneficiary(address: {}, **params)
@@ -32,9 +36,10 @@ module OpenEWS
 
     private
 
-    def build_request_uri(path)
+    def build_request_uri(path, query_parameters: {})
       uri = URI(configuration.host)
       uri.path = path
+      uri.query = URI.encode_www_form(query_parameters.compact)
       uri
     end
 

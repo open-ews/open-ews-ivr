@@ -3,6 +3,7 @@ require_relative "menu"
 module IVRFlow
   class EWS1294CambodiaFlow < Base
     AUDIO_NAMESPACE = "ews_registration".freeze
+    ISO_COUNTRY_CODE = "KH".freeze
 
     class LanguageMenu < IVRFlow::Menu
       # https://en.wikipedia.org/wiki/ISO_639-3
@@ -210,9 +211,37 @@ module IVRFlow
         end
       when "commune_prompted"
         if commune_menu.valid_choice?
-          @commune = commune_menu.selection.id
+          commune = commune_menu.selection
           validate_twilio_request!
-          open_ews_client.list_beneficiaries(filter: { phone_number: request.twilio.from })
+          existing_beneficiary = open_ews_client.list_beneficiaries(filter: { iso_country_code: ISO_COUNTRY_CODE, phone_number: request.twilio.from }, include: :addresses).resources.first
+
+          address_attributes = {
+            iso_region_code: commune.province.iso3166_2,
+            administrative_division_level_2_code: commune.district.id,
+            administrative_division_level_2_name: commune.district.name_en,
+            administrative_division_level_3_code: commune.id,
+            administrative_division_level_3_name: commune.name_en
+          }
+
+          if existing_beneficiary
+            existing_address = existing_beneficiary.addresses.find do
+              _1.administrative_division_level_3_code == commune.id
+            end
+
+            if existing_address.nil?
+              open_ews_client.create_beneficiary_address(
+                beneficiary_id: existing_beneficiary.id,
+                **address_attributes
+              )
+            end
+          else
+            open_ews_client.create_beneficiary(
+              phone_number: request.twilio.from,
+              language_code: language,
+              iso_country_code: ISO_COUNTRY_CODE,
+              address: address_attributes
+            )
+          end
 
           Twilio::TwiML::VoiceResponse.new do |response|
             response.play(url: build_audio_url(filename: :registration_successful, language:))

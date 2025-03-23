@@ -48,6 +48,44 @@ RSpec.describe "Handle ALB Events" do
         }
       )
     )
+    stub_request(:get, %r{https://api.open-ews.org/v1/beneficiaries}).to_return(
+      body: JSON.dump(
+        {
+          data: [
+            {
+              id: "1",
+              type: "beneficiary",
+              attributes: {
+                phone_number: "855972346004"
+              },
+              relationships: {
+                addresses: {
+                  data: [
+                    {
+                      id: "1",
+                      type: "address"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          included: [
+            {
+              id: "1",
+              type: "address",
+              attributes: {
+                iso_region_code: "KH-4",
+                administrative_division_level_2_code: "0401",
+                administrative_division_level_2_name: "Baribour",
+                administrative_division_level_3_code: "040106",
+                administrative_division_level_3_name: "Melum"
+              }
+            }
+          ]
+        }
+      )
+    )
 
     response = invoke_lambda(payload:)
 
