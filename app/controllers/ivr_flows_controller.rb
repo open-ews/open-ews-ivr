@@ -6,8 +6,8 @@ class IVRFlowsController
   end
 
   def create(request:, route:)
-    twilio_request = twilio_request_parser.parse(request)
     ivr_flow = IVRFlow::Collection.find(route.parameters.fetch(:id))
+    twilio_request = twilio_request_parser.parse(request)
     handler = ivr_flow.handler.new(request: twilio_request)
     handler.call
   end

@@ -3,7 +3,7 @@ require "json"
 module EventHelpers
   def build_alb_event_payload(data = {})
     payload = JSON.parse(file_fixture("alb_request_event.json").read)
-    headers = payload.fetch("headers")
+    headers = payload.fetch("headers").merge(data.delete(:headers) || {})
 
     data = {
       http_method: :post,

@@ -1,5 +1,5 @@
 class TwilioRequest < SimpleDelegator
-  Twilio = Data.define(:from, :to, :digits)
+  Twilio = Data.define(:from, :to, :digits, :payload, :signature)
 
   attr_reader :twilio
 

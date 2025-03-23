@@ -10,7 +10,9 @@ class TwilioRequestParser
       twilio = TwilioRequest::Twilio.new(
         from: params.fetch("From"),
         to: params.fetch("To"),
-        digits:
+        digits:,
+        payload: params,
+        signature: request.headers.fetch("x-twilio-signature")
       )
       TwilioRequest.new(request, twilio)
     end
@@ -18,7 +20,7 @@ class TwilioRequestParser
     private
 
     def params
-      @params ||= URI.decode_www_form(request.body)
+      @params ||= URI.decode_www_form(request.body).to_h
     end
 
     def digits

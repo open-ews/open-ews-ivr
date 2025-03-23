@@ -20,14 +20,13 @@ module App
       logger.info("Processing Request: #{payload}")
       request = request_parser.parse(payload)
       route = Router.new(request).resolve
-      response = route.controller.new.public_send(route, request:, route:)
+      response = route.controller.new.public_send(route.action, request:, route:)
       logger.info(serialize(response))
       serialize(response)
     rescue Errors::NotFoundError
       serialize(ALBResponse::NotFoundResponse)
     rescue Exception => e
       logger.error(e)
-      puts(e)
       Sentry.capture_exception(e)
       serialize(ALBResponse::InternalServerErrorResponse)
     end

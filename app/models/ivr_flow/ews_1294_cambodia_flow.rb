@@ -169,7 +169,7 @@ module IVRFlow
         if main_menu.leave_feedback?
           Twilio::TwiML::VoiceResponse.new do |response|
             response.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3"))
-            response.record(action: build_redirect_url(status: :feedback_recorded), recording_status_callback: Router.url_for(path: "/ivr_flows/ews_1294_cambodia/feedback", host: request.host, scheme: request.protocol))
+            response.record(action: build_redirect_url(status: :feedback_recorded), recording_status_callback: Router.url_for(path: "/ivr_flows/ews_1294_cambodia/feedback", host: request.host, scheme: request.scheme))
           end
         else
           prompt_language
@@ -203,7 +203,7 @@ module IVRFlow
       when "commune_prompted"
         if commune_menu.valid_choice?
           @commune = commune_menu.selection.id
-          # create beneficiary here
+          # twilio_request_validator.validate_request(request.twilio.signature)
           Twilio::TwiML::VoiceResponse.new do |response|
             response.play(url: build_audio_url(filename: :registration_successful, language:))
             response.hangup

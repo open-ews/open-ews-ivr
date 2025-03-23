@@ -21,8 +21,10 @@ module IVRFlow
         query_parameters: {
           "status" => "introduction_played"
         },
-        twilio_params: {
-          from: "+855715100860"
+        twilio: {
+          params: {
+            from: "+855715100860"
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -58,8 +60,10 @@ module IVRFlow
         query_parameters: {
           "status" => "main_menu_prompted"
         },
-        twilio_params: {
-          digits: 1
+        twilio: {
+          params: {
+            digits: 1
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -78,8 +82,10 @@ module IVRFlow
         query_parameters: {
           "status" => "main_menu_prompted"
         },
-        twilio_params: {
-          digits: 2
+        twilio: {
+          params: {
+            digits: 2
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -118,8 +124,10 @@ module IVRFlow
         query_parameters: {
           "status" => "language_prompted"
         },
-        twilio_params: {
-          digits: 2
+        twilio: {
+          params: {
+            digits: 2
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -139,8 +147,10 @@ module IVRFlow
           "status" => "province_prompted",
           "language" => "cmo"
         },
-        twilio_params: {
-          digits: 20
+        twilio: {
+          params: {
+            digits: 20
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -160,8 +170,10 @@ module IVRFlow
           "status" => "province_prompted",
           "language" => "khm"
         },
-        twilio_params: {
-          digits: 100
+        twilio: {
+          params: {
+            digits: 100
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -181,8 +193,10 @@ module IVRFlow
           "language" => "cmo",
           "province" => "11"
         },
-        twilio_params: {
-          digits: 2
+        twilio: {
+          params: {
+            digits: 2
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -203,8 +217,10 @@ module IVRFlow
           "language" => "cmo",
           "province" => "11"
         },
-        twilio_params: {
-          digits: 100
+        twilio: {
+          params: {
+            digits: 100
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -226,8 +242,10 @@ module IVRFlow
           "province" => "11",
           "district" => "1102"
         },
-        twilio_params: {
-          digits: 3
+        twilio: {
+          params: {
+            digits: 3
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -249,8 +267,10 @@ module IVRFlow
           "province" => "11",
           "district" => "1102"
         },
-        twilio_params: {
-          digits: 100
+        twilio: {
+          params: {
+            digits: 100
+          }
         }
       )
       flow = EWS1294CambodiaFlow.new(request:)
@@ -278,5 +298,78 @@ module IVRFlow
     def response_body(response)
       Base64.decode64(response.body)
     end
+
+    def build_twilio_signature(auth_token:, url:, request_body:)
+      {
+        "X-Twilio-Signature" => Twilio::Security::RequestValidator.new(
+          auth_token
+        ).build_signature_for(
+          url, request_body
+        )
+      }
+    end
+
+    # build_request_body(
+    #   call_sid: delivery_attempt.remote_call_id,
+    #   account_sid: account.twilio_account_sid,
+    #   direction: "outbound-api",
+    #   call_status: "completed",
+    #   from: "1294",
+    #   to: delivery_attempt.phone_number,
+    #   call_duration: "87"
+    # )
+
+    # def build_request_body(options)
+    #   {
+    #     CallSid: options.fetch(:call_sid) { SecureRandom.uuid },
+    #     From: options.fetch(:from) { "+85510202101" },
+    #     To: options.fetch(:to) { "1294" },
+    #     Direction: options.fetch(:direction) { "inbound" },
+    #     CallStatus: options.fetch(:call_status) { "ringing" },
+    #     AccountSid: options.fetch(:account_sid),
+    #     CallDuration: options.fetch(:call_duration) { nil },
+    #     ApiVersion: options.fetch(:api_version) { "2010-04-01" }
+    #   }.compact
+    # end
   end
 end
+
+# it "Creates a phone call event for an outbound call" do
+#   account = create(:account, :with_twilio_provider)
+#   delivery_attempt = create_delivery_attempt(:remotely_queued, account:)
+
+#   request_body = build_request_body(
+#     call_sid: delivery_attempt.remote_call_id,
+#     account_sid: account.twilio_account_sid,
+#     direction: "outbound-api",
+#     call_status: "completed",
+#     from: "1294",
+#     to: delivery_attempt.phone_number,
+#     call_duration: "87"
+#   )
+
+#   perform_enqueued_jobs do
+#     post(
+#       twilio_webhooks_phone_call_events_url,
+#       params: request_body,
+#       headers: build_twilio_signature(
+#         auth_token: account.twilio_auth_token,
+#         url: twilio_webhooks_phone_call_events_url,
+#         request_body: request_body
+#       )
+#     )
+#   end
+
+#   expect(response.code).to eq("201")
+#   created_event = RemotePhoneCallEvent.last!
+#   expect(created_event).to have_attributes(
+#     call_duration: 87,
+#     delivery_attempt: have_attributes(
+#       status: "completed",
+#       call_flow_logic: CallFlowLogic::HelloWorld.to_s,
+#       remote_status: request_body.fetch(:CallStatus),
+#       duration: 87
+#     )
+#   )
+#   expect(response.body).to eq(CallFlowLogic::HelloWorld.new.to_xml)
+# end
