@@ -17,16 +17,36 @@ RSpec.describe "Handle ALB Events" do
     expect(response).to include(statusCode: 404)
   end
 
-  it "handles valid ivr flows" do
+  it "handles EWS 1294 Cambodia flows" do
+    uri = URI("https://ivr.open-ews.org/ivr_flows/ews_1294_cambodia?status=commune_prompted&language=cmo&province=11&district=1102")
+    twilio_params = {
+      "From" => "+855716599333",
+      "To" => "1294",
+      "Digits" => "2"
+    }
     payload = build_alb_event_payload(
-      path: "/ivr_flows/ews_1294_cambodia",
-      body: URI.encode_www_form(
-        From: "+855716599333",
-        To: "1294"
-      ),
+      path: uri.path,
+      query_parameters: URI.decode_www_form(uri.query).to_h,
+      body: URI.encode_www_form(twilio_params),
       headers: {
-        "x-twilio-signature" => "abc"
+        "host" => uri.host,
+        "x-forwarded-proto" => uri.scheme,
+        "x-twilio-signature" => build_twilio_signature(auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b", url: uri.to_s, params: twilio_params)
       }
+    )
+    stub_request(:get, "https://api.open-ews.org/v1/account").to_return(
+      body: JSON.dump(
+        {
+          data: {
+            id: "1",
+            type: "account",
+            attributes: {
+              somleng_account_sid: SecureRandom.uuid,
+              somleng_auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b"
+            }
+          }
+        }
+      )
     )
 
     response = invoke_lambda(payload:)
@@ -36,7 +56,7 @@ RSpec.describe "Handle ALB Events" do
       headers: {
         "Content-Type" => "application/xml"
       },
-      body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/introduction-khm.wav</Play>\n<Redirect>/ivr_flows/ews_1294_cambodia?status=introduction_played</Redirect>\n</Response>\n")
+      body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/registration_successful-cmo.wav</Play>\n<Hangup/>\n</Response>\n")
     )
   end
 end

@@ -6,7 +6,7 @@ module OpenEWS
       class Parser
         attr_reader :payload, :jsonapi_response_parser
 
-        def initialize(payload:, **options)
+        def initialize(payload, **options)
           @payload = payload
           @jsonapi_response_parser = options.fetch(:jsonapi_response_parser) { JSONAPIResponseParser.new }
         end

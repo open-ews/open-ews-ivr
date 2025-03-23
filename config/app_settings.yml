@@ -6,14 +6,16 @@ default: &default
 production: &production
   <<: *default
   sentry_dsn: "<%= app_settings.credentials.fetch('sentry_dsn') %>"
-  open_ews_api_key: "<%= app_settings.credentials.fetch('open_ews_api_key') %>"
+  open_ews_accounts: <%= app_settings.credentials.fetch('open_ews_accounts') %>
 
 staging:
   <<: *production
 
 development: &development
   <<: *default
-  open_ews_api_key: "secret"
+  open_ews_accounts:
+    ews_1294_cambodia:
+      api_key: "secret"
 
 test: &test
   <<: *development

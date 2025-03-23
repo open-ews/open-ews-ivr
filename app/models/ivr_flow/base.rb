@@ -1,11 +1,12 @@
 module IVRFlow
   class Base
-    attr_reader :request, :twilio_request_validator, :open_ews_client
+    attr_reader :request, :open_ews_client, :twilio_request_validator, :auth_token_fetcher
 
     def initialize(**options)
       @request = options.fetch(:request)
+      @open_ews_client = options.fetch(:open_ews_client)
       @twilio_request_validator = options.fetch(:twilio_request_validator) { TwilioRequestValidator.new }
-      @open_ews_client = options.fetch(:open_ews_client) { OpenEWS::Client.new }
+      @auth_token_fetcher = options.fetch(:auth_token, -> { open_ews_client.fetch_account_settings.somleng_auth_token })
     end
 
     private
@@ -15,7 +16,7 @@ module IVRFlow
     end
 
     def auth_token
-      @auth_token ||= open_ews_client.fetch_account_settings.auth_token
+      @auth_token ||= auth_token_fetcher.respond_to?(:call) ? auth_token_fetcher.call : auth_token_fetcher
     end
 
     def build_redirect_url(**params)

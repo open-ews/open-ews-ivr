@@ -1,11 +1,13 @@
+require_relative "base"
+
 module OpenEWS
   module ResponseParser
     class Account < Base
-      def parse
-        super
+      def parse(...)
+        response = super
         OpenEWS::Resource::Account.new(
-          account_sid: response_attributes.fetch("somleng_account_sid"),
-          auth_token: response_attributes.fetch("somleng_auth_token")
+          somleng_account_sid: response.attributes.fetch("somleng_account_sid"),
+          somleng_auth_token: response.attributes.fetch("somleng_auth_token")
         )
       end
     end

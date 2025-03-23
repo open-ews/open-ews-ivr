@@ -245,25 +245,11 @@ module IVRFlow
         twilio: {
           params: {
             digits: 3
-          }
+          },
+          auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b"
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
-      stub_request(:get, "https://api.open-ews.org/v1/account").to_return(
-        body: JSON.dump(
-          {
-            data: {
-              id: "1",
-              type: "account",
-              attributes: {
-                somleng_account_sid: "ee86bd53-626d-4139-8143-608a267c8b71",
-                somleng_auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b"
-              }
-            }
-          }
-        )
-      )
-
+      flow = EWS1294CambodiaFlow.new(request:, auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b")
       response = flow.call
 
       twiml = response_twiml(response_body(response))
@@ -311,16 +297,6 @@ module IVRFlow
 
     def response_body(response)
       Base64.decode64(response.body)
-    end
-
-    def build_twilio_signature(auth_token:, url:, request_body:)
-      {
-        "X-Twilio-Signature" => Twilio::Security::RequestValidator.new(
-          auth_token
-        ).build_signature_for(
-          url, request_body
-        )
-      }
     end
 
     # build_request_body(

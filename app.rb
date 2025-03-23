@@ -27,6 +27,7 @@ module App
       serialize(ALBResponse::NotFoundResponse)
     rescue Exception => e
       logger.error(e)
+      puts(e)
       Sentry.capture_exception(e)
       serialize(ALBResponse::InternalServerErrorResponse)
     end

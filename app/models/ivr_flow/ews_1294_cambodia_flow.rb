@@ -32,8 +32,17 @@ module IVRFlow
     end
 
     class MainMenu < IVRFlow::Menu
+      FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS = [
+        "+855715100860", "+85570753999", "+855966164166", "+85592943196", "+855965636025",
+        "+85578746371", "+85512716884", "+855966946549", "+85511765511"
+      ].freeze
+
       def leave_feedback?
         request.twilio.digits == 2
+      end
+
+      def feedback_enabled?
+        FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS.include?(request.twilio.from)
       end
     end
 
@@ -147,10 +156,9 @@ module IVRFlow
       end
     end
 
-    FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS = [
-      "+855715100860", "+85570753999", "+855966164166", "+85592943196", "+855965636025",
-      "+85578746371", "+85512716884", "+855966946549", "+85511765511"
-    ].freeze
+    def initialize(**options)
+      super(open_ews_client: options.fetch(:open_ews_client) { OpenEWS::Client.new(api_key: options.fetch(:open_ews_api_key) { AppSettings.dig("open_ews_accounts", "ews_1294_cambodia", "api_key") } ) }, **options)
+    end
 
     def call
       twiml = case status
@@ -160,7 +168,7 @@ module IVRFlow
           response.redirect(build_redirect_url(status: :introduction_played))
         end
       when "introduction_played"
-        if feedback_enabled?
+        if main_menu.feedback_enabled?
           main_menu.prompt(action: build_redirect_url(status: :main_menu_prompted), audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3"))
         else
           prompt_language
@@ -204,6 +212,8 @@ module IVRFlow
         if commune_menu.valid_choice?
           @commune = commune_menu.selection.id
           validate_twilio_request!
+          open_ews_client.list_beneficiaries(filter: { phone_number: request.twilio.from })
+
           Twilio::TwiML::VoiceResponse.new do |response|
             response.play(url: build_audio_url(filename: :registration_successful, language:))
             response.hangup
@@ -279,10 +289,6 @@ module IVRFlow
 
     def build_audio_url(**)
       super(namespace: AUDIO_NAMESPACE, **)
-    end
-
-    def feedback_enabled?
-      FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS.include?(request.twilio.from)
     end
   end
 end
