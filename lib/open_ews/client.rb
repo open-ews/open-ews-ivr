@@ -1,0 +1,64 @@
+require "net/http"
+require "net/https"
+
+module OpenEWS
+  class Client
+    attr_reader :http_client, :response_parser
+
+    def initialize(**options)
+      @http_client = options.fetch(:http_client) { default_http_client }
+      @response_parser = options.fetch(:response_parser) { JSONAPIResponseParser.new }
+    end
+
+    def fetch_account_settings
+      do_request(Net::HTTP::Get.new(build_request_uri("/v1/account")))
+    end
+
+    def create_beneficiary(address: {}, **params)
+      payload = {
+        data: {
+          type: "beneficiary",
+          attributes: {
+            **params,
+            address: {
+              **address
+            }
+          }
+        }
+      }
+
+      do_request(Net::HTTP::Post.new(build_request_uri("/v1/beneficiaries")), body: payload)
+    end
+
+    private
+
+    def build_request_uri(path)
+      uri = URI(configuration.host)
+      uri.path = path
+      uri
+    end
+
+    def configuration
+      OpenEWS.configuration
+    end
+
+    def do_request(req, body: nil)
+      req.add_field("Content-Type", "application/vnd.api+json; charset=utf-8")
+      req.add_field("Authorization", "Bearer #{configuration.api_key}")
+      req.body = JSON.dump(body) if body
+      response = http_client.request(req)
+      response_parser.parse(response.body)
+    end
+
+    def default_http_client
+      host_uri = URI(configuration.host)
+      host_port = host_uri.port || 443
+      http = Net::HTTP.new(host_uri.host, host_port)
+      if host_port == 443
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      end
+      http
+    end
+  end
+end

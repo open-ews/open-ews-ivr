@@ -19,9 +19,10 @@ group :development do
 end
 
 group :test do
+  gem "activesupport"
   gem "pry"
   gem "rspec"
   gem "simplecov", require: false
   gem "simplecov-cobertura", require: false
-  gem "activesupport"
+  gem "webmock"
 end

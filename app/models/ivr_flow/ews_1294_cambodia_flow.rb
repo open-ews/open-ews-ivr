@@ -203,7 +203,7 @@ module IVRFlow
       when "commune_prompted"
         if commune_menu.valid_choice?
           @commune = commune_menu.selection.id
-          # twilio_request_validator.validate_request(request.twilio.signature)
+          validate_twilio_request!
           Twilio::TwiML::VoiceResponse.new do |response|
             response.play(url: build_audio_url(filename: :registration_successful, language:))
             response.hangup
