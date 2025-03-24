@@ -32,7 +32,20 @@ module OpenEWS
         }
       }
 
-      do_request(Net::HTTP::Post.new(build_request_uri("/v1/beneficiaries")), body: payload)
+      do_request(Net::HTTP::Post.new(build_request_uri("/v1/beneficiaries")), body: payload, response_parser: ResponseParser::BeneficiaryParser.new)
+    end
+
+    def create_beneficiary_address(beneficiary_id:, **params)
+      payload = {
+        data: {
+          type: "address",
+          attributes: {
+            **params
+          }
+        }
+      }
+
+      do_request(Net::HTTP::Post.new(build_request_uri("/v1/beneficiaries/#{beneficiary_id}/addresses")), body: payload, response_parser: ResponseParser::BeneficiaryAddressParser.new)
     end
 
     private

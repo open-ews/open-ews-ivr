@@ -21,9 +21,11 @@ module FactoryHelpers
     twilio_params = {
       from: "+855715100989",
       to: "1294",
+      direction: "inbound",
       digits: nil,
       **twilio.fetch(:params, {})
     }
+    twilio_params[:beneficiary] ||= twilio_params.fetch(:direction) == "inbound" ? twilio_params.fetch(:from) : twilio_params.fetch(:to)
 
     request_parameters = build_request_parameters(**params)
     payload = twilio.fetch(:payload) { twilio_params.compact.transform_keys { _1.to_s.camelize } }
@@ -63,6 +65,36 @@ module FactoryHelpers
       query_parameters:,
       url:
     )
+  end
+
+  def build_beneficiary(**params)
+    OpenEWS::Resource::Beneficiary.new(
+      id: "1",
+      phone_number: "+855715100900",
+      addresses: [],
+      **params
+    )
+  end
+
+  def build_beneficiary_address(**params)
+    OpenEWS::Resource::BeneficiaryAddress.new(
+      iso_region_code: "KH-04",
+      administrative_division_level_2_code: "0401",
+      administrative_division_level_2_name: "Baribour",
+      administrative_division_level_3_code: "040106",
+      administrative_division_level_3_name: "Melum",
+      administrative_division_level_4_code: nil,
+      administrative_division_level_4_name: nil,
+      **params
+    )
+  end
+
+  def build_fake_open_ews_client(**options)
+    client = instance_spy(OpenEWS::Client)
+    allow(client).to receive(:list_beneficiaries).and_return(
+      OpenEWS::Resource::Collection.new(resources: options.fetch(:list_beneficiaries, []))
+    )
+    client
   end
 end
 

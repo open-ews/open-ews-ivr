@@ -1,7 +1,7 @@
 require_relative "menu"
 
 module IVRFlow
-  class EWS1294CambodiaFlow < Base
+  class EWS1294CambodiaFlow
     AUDIO_NAMESPACE = "ews_registration".freeze
     ISO_COUNTRY_CODE = "KH".freeze
 
@@ -43,7 +43,7 @@ module IVRFlow
       end
 
       def feedback_enabled?
-        FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS.include?(request.twilio.from)
+        FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS.include?(request.twilio.beneficiary)
       end
     end
 
@@ -59,9 +59,9 @@ module IVRFlow
 
       attr_reader :language
 
-      def initialize(language:, **)
+      def initialize(request, language:)
+        super(request)
         @language = language
-        super(**)
       end
 
       MENU = [
@@ -112,10 +112,10 @@ module IVRFlow
     class DistrictMenu < IVRFlow::Menu
       attr_reader :language, :province
 
-      def initialize(language:, province:, **)
+      def initialize(request, language:, province:)
+        super(request)
         @language = language
         @province = province
-        super(**)
       end
 
       def valid_choice?
@@ -136,10 +136,10 @@ module IVRFlow
     class CommuneMenu < IVRFlow::Menu
       attr_reader :language, :district
 
-      def initialize(language:, district:, **)
+      def initialize(request, language:, district:)
+        super(request)
         @language = language
         @district = district
-        super(**)
       end
 
       def valid_choice?
@@ -157,10 +157,10 @@ module IVRFlow
       end
     end
 
-    attr_reader :open_ews_client
+    attr_reader :request, :open_ews_client
 
-    def initialize(**options)
-      super
+    def initialize(request, **options)
+      @request = request
       @open_ews_client = options.fetch(:open_ews_client) { OpenEWS::Client.new(api_key: options.fetch(:open_ews_api_key) { AppSettings.dig("open_ews_accounts", "ews_1294_cambodia", "api_key") }) }
       @auth_token = options.fetch(:auth_token) { -> { open_ews_client.fetch_account_settings.somleng_auth_token } }
     end
@@ -174,7 +174,7 @@ module IVRFlow
         end
       when "introduction_played"
         if main_menu.feedback_enabled?
-          main_menu.prompt(action: build_redirect_url(status: :main_menu_prompted), audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3"))
+          prompt(action: build_redirect_url(status: :main_menu_prompted), audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3"))
         else
           prompt_language
         end
@@ -221,7 +221,7 @@ module IVRFlow
           CreateBeneficiary.call(
             open_ews_client:,
             iso_country_code: ISO_COUNTRY_CODE,
-            phone_number: request.twilio.from,
+            phone_number: request.twilio.beneficiary,
             language_code: language,
             address: {
               iso_region_code: commune.province.iso3166_2,
@@ -255,50 +255,23 @@ module IVRFlow
     end
 
     def main_menu
-      @main_menu ||= MainMenu.new(request:)
+      @main_menu ||= MainMenu.new(request)
     end
 
     def language_menu
-      @language_menu ||= LanguageMenu.new(request:)
+      @language_menu ||= LanguageMenu.new(request)
     end
 
     def province_menu
-      @province_menu ||= ProvinceMenu.new(request:, language:)
+      @province_menu ||= ProvinceMenu.new(request, language:)
     end
 
     def district_menu
-      @district_menu ||= DistrictMenu.new(request:, language:, province:)
+      @district_menu ||= DistrictMenu.new(request, language:, province:)
     end
 
     def commune_menu
-      @commune_menu ||= CommuneMenu.new(request:, language:, district:)
-    end
-
-    def prompt_language
-      language_menu.prompt(action: build_redirect_url(status: :language_prompted), audio_url: build_audio_url(filename: :select_language))
-    end
-
-    def prompt_province
-      province_menu.prompt(action: build_redirect_url(status: :province_prompted), audio_url: build_audio_url(filename: :select_province, language:))
-    end
-
-    def prompt_district
-      district_menu.prompt(action: build_redirect_url(status: :district_prompted), audio_url: build_audio_url(filename: province, language:))
-    end
-
-    def prompt_commune
-      commune_menu.prompt(action: build_redirect_url(status: :commune_prompted), audio_url: build_audio_url(filename: district, language:))
-    end
-
-    def build_redirect_url(**params)
-      super(
-        **{
-          "language" => language,
-          "province" => province,
-          "district" => district,
-          **params
-        }.compact
-      )
+      @commune_menu ||= CommuneMenu.new(request, language:, district:)
     end
 
     def language
@@ -313,8 +286,45 @@ module IVRFlow
       @district ||= request.query_parameters["district"]
     end
 
+    def prompt_language
+      prompt(action: build_redirect_url(status: :language_prompted), audio_url: build_audio_url(filename: :select_language))
+    end
+
+    def prompt_province
+      prompt(action: build_redirect_url(status: :province_prompted), audio_url: build_audio_url(filename: :select_province, language:))
+    end
+
+    def prompt_district
+      prompt(action: build_redirect_url(status: :district_prompted), audio_url: build_audio_url(filename: province, language:))
+    end
+
+    def prompt_commune
+      prompt(action: build_redirect_url(status: :commune_prompted), audio_url: build_audio_url(filename: district, language:))
+    end
+
     def build_audio_url(**)
-      super(namespace: AUDIO_NAMESPACE, **)
+      AudioURL.new(namespace: AUDIO_NAMESPACE, **).url
+    end
+
+    def build_redirect_url(**params)
+      uri = URI(request.path)
+      uri.query = URI.encode_www_form(
+        {
+          "language" => language,
+          "province" => province,
+          "district" => district,
+          **params
+        }.compact
+      )
+      uri.to_str
+    end
+
+    def prompt(action:, audio_url:)
+      Twilio::TwiML::VoiceResponse.new do |response|
+        response.gather(action_on_empty_result: true, action:) do |gather|
+          gather.play(url: audio_url)
+        end
+      end
     end
   end
 end

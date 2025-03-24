@@ -11,11 +11,13 @@ module OpenEWS
         end
 
         def call
+          return payload if payload.is_a?(Resource)
+
           Resource.new(
             id:,
             type:,
             attributes:,
-            relationships:,
+            relationships:
           )
         end
 

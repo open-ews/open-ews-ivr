@@ -25,11 +25,10 @@ module App
       serialize(response)
     rescue Errors::NotFoundError
       serialize(ALBResponse::NotFoundResponse)
-    # rescue Exception => e
-    #   logger.error(e)
-    #   puts(e)
-    #   Sentry.capture_exception(e)
-    #   serialize(ALBResponse::InternalServerErrorResponse)
+    rescue Exception => e
+      logger.error(e)
+      Sentry.capture_exception(e)
+      serialize(ALBResponse::InternalServerErrorResponse)
     end
 
     def serialize(response)

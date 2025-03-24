@@ -1,8 +1,6 @@
 module OpenEWS
   module ResponseParser
     class CollectionParser
-      Collection = Data.define(:resources)
-
       attr_reader :resource_response_parser
 
       def initialize(resource_response_parser)
@@ -21,7 +19,7 @@ module OpenEWS
           resources = data.map do |resource|
             resource_response_parser.parse("data" => resource, "included" => included)
           end
-          Collection.new(resources:)
+          OpenEWS::Resource::Collection.new(resources:)
         end
 
         private

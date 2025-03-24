@@ -4,12 +4,11 @@ module IVRFlow
   RSpec.describe EWS1294CambodiaFlow do
     it "plays the introduction" do
       request = build_ivr_request
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
       twiml = response_twiml(response_body(response))
-
       expect(twiml).to include(
         "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/introduction-khm.wav",
         "Redirect" => "/ivr_flows/ews_1294_cambodia?status=introduction_played"
@@ -27,7 +26,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -44,7 +43,7 @@ module IVRFlow
           "status" => "introduction_played"
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -66,7 +65,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -88,7 +87,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -108,7 +107,7 @@ module IVRFlow
           "status" => "feedback_recorded"
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -130,7 +129,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -153,7 +152,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -176,7 +175,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
       twiml = response_twiml(response_body(response))
@@ -199,7 +198,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -223,7 +222,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -249,13 +248,57 @@ module IVRFlow
           auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b"
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:, auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b")
+      flow = EWS1294CambodiaFlow.new(
+        request,
+        auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b",
+        open_ews_client: build_fake_open_ews_client
+      )
+
       response = flow.call
 
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
         "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/registration_successful-cmo.wav",
         "Hangup" => nil
+      )
+    end
+
+    it "creates a beneficiary" do
+      request = build_ivr_request(
+        query_parameters: {
+          "status" => "commune_prompted",
+          "language" => "cmo",
+          "province" => "11",
+          "district" => "1102"
+        },
+        twilio: {
+          params: {
+            digits: 3,
+            from: "+855715100900"
+          },
+          auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b"
+        }
+      )
+      open_ews_client = build_fake_open_ews_client
+      flow = EWS1294CambodiaFlow.new(
+        request,
+        auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b",
+        open_ews_client:
+      )
+
+      flow.call
+
+      expect(open_ews_client).to have_received(:create_beneficiary).with(
+        language_code: "cmo",
+        iso_country_code: "KH",
+        phone_number: "+855715100900",
+        address: {
+          iso_region_code: "KH-11",
+          administrative_division_level_2_code: "1102",
+          administrative_division_level_2_name: "Kaoh Nheaek",
+          administrative_division_level_3_code: "110203",
+          administrative_division_level_3_name: "Roya"
+        }
       )
     end
 
@@ -273,7 +316,7 @@ module IVRFlow
           }
         }
       )
-      flow = EWS1294CambodiaFlow.new(request:)
+      flow = EWS1294CambodiaFlow.new(request)
 
       response = flow.call
 
@@ -298,68 +341,5 @@ module IVRFlow
     def response_body(response)
       Base64.decode64(response.body)
     end
-
-    # build_request_body(
-    #   call_sid: delivery_attempt.remote_call_id,
-    #   account_sid: account.twilio_account_sid,
-    #   direction: "outbound-api",
-    #   call_status: "completed",
-    #   from: "1294",
-    #   to: delivery_attempt.phone_number,
-    #   call_duration: "87"
-    # )
-
-    # def build_request_body(options)
-    #   {
-    #     CallSid: options.fetch(:call_sid) { SecureRandom.uuid },
-    #     From: options.fetch(:from) { "+85510202101" },
-    #     To: options.fetch(:to) { "1294" },
-    #     Direction: options.fetch(:direction) { "inbound" },
-    #     CallStatus: options.fetch(:call_status) { "ringing" },
-    #     AccountSid: options.fetch(:account_sid),
-    #     CallDuration: options.fetch(:call_duration) { nil },
-    #     ApiVersion: options.fetch(:api_version) { "2010-04-01" }
-    #   }.compact
-    # end
   end
 end
-
-# it "Creates a phone call event for an outbound call" do
-#   account = create(:account, :with_twilio_provider)
-#   delivery_attempt = create_delivery_attempt(:remotely_queued, account:)
-
-#   request_body = build_request_body(
-#     call_sid: delivery_attempt.remote_call_id,
-#     account_sid: account.twilio_account_sid,
-#     direction: "outbound-api",
-#     call_status: "completed",
-#     from: "1294",
-#     to: delivery_attempt.phone_number,
-#     call_duration: "87"
-#   )
-
-#   perform_enqueued_jobs do
-#     post(
-#       twilio_webhooks_phone_call_events_url,
-#       params: request_body,
-#       headers: build_twilio_signature(
-#         auth_token: account.twilio_auth_token,
-#         url: twilio_webhooks_phone_call_events_url,
-#         request_body: request_body
-#       )
-#     )
-#   end
-
-#   expect(response.code).to eq("201")
-#   created_event = RemotePhoneCallEvent.last!
-#   expect(created_event).to have_attributes(
-#     call_duration: 87,
-#     delivery_attempt: have_attributes(
-#       status: "completed",
-#       call_flow_logic: CallFlowLogic::HelloWorld.to_s,
-#       remote_status: request_body.fetch(:CallStatus),
-#       duration: 87
-#     )
-#   )
-#   expect(response.body).to eq(CallFlowLogic::HelloWorld.new.to_xml)
-# end

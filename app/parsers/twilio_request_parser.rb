@@ -8,8 +8,10 @@ class TwilioRequestParser
 
     def call
       twilio = TwilioRequest::Twilio.new(
-        from: params.fetch("From"),
-        to: params.fetch("To"),
+        from:,
+        to:,
+        direction:,
+        beneficiary:,
         digits:,
         payload: params,
         signature: request.headers.fetch("x-twilio-signature")
@@ -25,6 +27,22 @@ class TwilioRequestParser
 
     def digits
       params.key?("Digits") && !params.fetch("Digits").to_s.empty? ? params.fetch("Digits").to_i : nil
+    end
+
+    def direction
+      params.fetch("Direction")
+    end
+
+    def from
+      params.fetch("From")
+    end
+
+    def to
+      params.fetch("To")
+    end
+
+    def beneficiary
+      direction == "inbound" ? from : to
     end
   end
 

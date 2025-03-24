@@ -1,4 +1,4 @@
-require_relative "../spec_helper"
+require "spec_helper"
 
 RSpec.describe "Handle ALB Events" do
   it "handles 404s" do
@@ -18,11 +18,12 @@ RSpec.describe "Handle ALB Events" do
   end
 
   it "handles EWS 1294 Cambodia flows" do
-    uri = URI("https://ivr.open-ews.org/ivr_flows/ews_1294_cambodia?status=commune_prompted&language=cmo&province=11&district=1102")
+    uri = URI("https://ivr.open-ews.org/ivr_flows/ews_1294_cambodia?status=commune_prompted&language=khm&province=04&district=0401")
     twilio_params = {
       "From" => "+855716599333",
       "To" => "1294",
-      "Digits" => "2"
+      "Digits" => "2",
+      "Direction" => "inbound"
     }
     payload = build_alb_event_payload(
       path: uri.path,
@@ -88,6 +89,25 @@ RSpec.describe "Handle ALB Events" do
         }
       )
     )
+    stub_request(:post, "https://api.open-ews.org/v1/beneficiaries/1/addresses").to_return(
+      body: JSON.dump(
+        {
+          data: {
+            id: "2",
+            type: "address",
+            attributes: {
+              iso_region_code: "KH-4",
+              administrative_division_level_2_code: "0401",
+              administrative_division_level_2_name: "Baribour",
+              administrative_division_level_3_code: "040102",
+              administrative_division_level_3_name: "Chhnok Tru",
+              administrative_division_level_4_code: nil,
+              administrative_division_level_4_name: nil
+            }
+          }
+        }
+      )
+    )
 
     response = invoke_lambda(payload:)
 
@@ -96,7 +116,7 @@ RSpec.describe "Handle ALB Events" do
       headers: {
         "Content-Type" => "application/xml"
       },
-      body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/registration_successful-cmo.wav</Play>\n<Hangup/>\n</Response>\n")
+      body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/registration_successful-khm.wav</Play>\n<Hangup/>\n</Response>\n")
     )
   end
 end

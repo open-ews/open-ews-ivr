@@ -48,7 +48,7 @@ class CreateBeneficiary
       _1.administrative_division_level_4_code == address_attributes[:administrative_division_level_4_code] &&
       _1.administrative_division_level_3_code == address_attributes[:administrative_division_level_3_code] &&
       _1.administrative_division_level_2_code == address_attributes[:administrative_division_level_2_code] &&
-      _1.iso_region_code == address[:iso_region_code]
+      _1.iso_region_code == address_attributes[:iso_region_code]
     end
 
     !!address

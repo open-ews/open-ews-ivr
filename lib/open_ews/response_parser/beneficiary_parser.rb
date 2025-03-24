@@ -1,6 +1,13 @@
 module OpenEWS
   module ResponseParser
     class BeneficiaryParser < ResourceParser
+      attr_reader :beneficiary_address_parser
+
+      def initialize(**options)
+        super
+        @beneficiary_address_parser = options.fetch(:beneficiary_address_parser) { BeneficiaryAddressParser.new }
+      end
+
       def parse(...)
         resource = super
 
@@ -8,15 +15,7 @@ module OpenEWS
           id: resource.id,
           phone_number: resource.attributes.fetch("phone_number"),
           addresses: Array(resource.relationships.fetch("addresses")).map do |address|
-            OpenEWS::Resource::BeneficiaryAddress.new(
-              iso_region_code: address.attributes.fetch("iso_region_code"),
-              administrative_division_level_2_code: address.attributes.fetch("administrative_division_level_2_code"),
-              administrative_division_level_2_name: address.attributes.fetch("administrative_division_level_2_name"),
-              administrative_division_level_3_code: address.attributes.fetch("administrative_division_level_3_code"),
-              administrative_division_level_3_name: address.attributes.fetch("administrative_division_level_3_name"),
-              administrative_division_level_4_code: address.attributes.fetch("administrative_division_level_4_code"),
-              administrative_division_level_4_name: address.attributes.fetch("administrative_division_level_4_name")
-            )
+            beneficiary_address_parser.parse(address)
           end
         )
       end
