@@ -79,7 +79,9 @@ RSpec.describe "Handle ALB Events" do
                 administrative_division_level_2_code: "0401",
                 administrative_division_level_2_name: "Baribour",
                 administrative_division_level_3_code: "040106",
-                administrative_division_level_3_name: "Melum"
+                administrative_division_level_3_name: "Melum",
+                administrative_division_level_4_code: nil,
+                administrative_division_level_4_name: nil
               }
             }
           ]

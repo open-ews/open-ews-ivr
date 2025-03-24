@@ -176,6 +176,7 @@ DEPENDENCIES
   encrypted_credentials!
   pry
   pumi
+  rack
   rake
   rspec
   rubocop

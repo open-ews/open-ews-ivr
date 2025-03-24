@@ -9,6 +9,7 @@ gem "encrypted_credentials", github: "somleng/encrypted_credentials"
 gem "pumi"
 gem "sentry-ruby"
 gem "twilio-ruby"
+gem "rack"
 
 group :development do
   gem "rake"

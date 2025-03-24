@@ -1,5 +1,6 @@
 require "net/http"
 require "net/https"
+require "rack/utils"
 
 module OpenEWS
   class Client
@@ -39,7 +40,7 @@ module OpenEWS
     def build_request_uri(path, query_parameters: {})
       uri = URI(configuration.host)
       uri.path = path
-      uri.query = URI.encode_www_form(query_parameters.compact)
+      uri.query = Rack::Utils.build_nested_query(query_parameters)
       uri
     end
 
