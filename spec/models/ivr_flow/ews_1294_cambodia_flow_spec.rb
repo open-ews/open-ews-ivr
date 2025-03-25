@@ -10,7 +10,7 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
-        "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/introduction-khm.wav",
+        "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/introduction-khm.wav",
         "Redirect" => "/ivr_flows/ews_1294_cambodia?status=introduction_played"
       )
     end
@@ -33,7 +33,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/main_menu-khm.mp3"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
       )
     end
 
@@ -50,7 +50,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/select_language.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/select_language.wav"
       )
     end
 
@@ -72,7 +72,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/select_language.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/select_language.wav"
       )
     end
 
@@ -93,7 +93,7 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
-        "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/record_feedback_instructions-khm.mp3",
+        "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/record_feedback_instructions-khm.mp3",
         "Record" => include(
           "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_recorded"
         )
@@ -112,7 +112,7 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
-        "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/feedback_successful-khm.mp3",
+        "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/feedback_successful-khm.mp3",
         "Hangup" => nil
       )
     end
@@ -135,7 +135,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=cmo&status=province_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/select_province-cmo.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/select_province-cmo.wav"
       )
     end
 
@@ -157,7 +157,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/select_language.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/select_language.wav"
       )
     end
 
@@ -180,7 +180,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=cmo&province=11&status=district_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/11-cmo.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/11-cmo.wav"
       )
     end
 
@@ -202,7 +202,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=khm&status=province_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/select_province-khm.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/select_province-khm.wav"
       )
     end
 
@@ -226,7 +226,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=cmo&province=11&district=1102&status=commune_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/1102-cmo.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/1102-cmo.wav"
       )
     end
 
@@ -250,7 +250,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=cmo&province=11&status=district_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/11-cmo.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/11-cmo.wav"
       )
     end
 
@@ -279,7 +279,7 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
-        "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/registration_successful-cmo.wav",
+        "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/registration_successful-cmo.wav",
         "Hangup" => nil
       )
     end
@@ -344,7 +344,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=cmo&province=11&district=1102&status=commune_prompted",
-        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/1102-cmo.wav"
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/1102-cmo.wav"
       )
     end
 

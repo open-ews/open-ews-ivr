@@ -2,7 +2,7 @@ require_relative "menu"
 
 module IVRFlow
   class EWS1294CambodiaFlow
-    AUDIO_NAMESPACE = "ews_registration".freeze
+    AUDIO_NAMESPACE = "ews_1294_cambodia".freeze
     ISO_COUNTRY_CODE = "KH".freeze
 
     class LanguageMenu < IVRFlow::Menu

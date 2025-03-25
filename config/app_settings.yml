@@ -1,6 +1,6 @@
 default: &default
   audio_bucket_region: "ap-southeast-1"
-  audio_bucket: "<%= ENV.fetch('AUDIO_BUCKET', 'audio.open-ews.org') %>"
+  audio_bucket: "<%= ENV.fetch('AUDIO_BUCKET', 'audio.ivr.open-ews.org') %>"
   open_ews_host: "https://api.open-ews.org"
 
 production: &production
