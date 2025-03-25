@@ -139,6 +139,28 @@ module IVRFlow
       )
     end
 
+    it "handles invalid language selection" do
+      request = build_ivr_request(
+        query_parameters: {
+          "status" => "language_prompted"
+        },
+        twilio: {
+          params: {
+            digits: 99
+          }
+        }
+      )
+      flow = EWS1294CambodiaFlow.new(request)
+
+      response = flow.call
+
+      twiml = response_twiml(response_body(response))
+      expect(twiml.fetch("Gather")).to include(
+        "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
+        "Play"=> "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/select_language.wav"
+      )
+    end
+
     it "handles province selection" do
       request = build_ivr_request(
         query_parameters: {
