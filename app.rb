@@ -26,6 +26,7 @@ module App
     rescue Errors::NotFoundError
       serialize(ALBResponse::NotFoundResponse)
     rescue Exception => e
+      raise(e) unless [ "production", "staging" ].include?(AppSettings.env)
       logger.error(e)
       Sentry.capture_exception(e)
       serialize(ALBResponse::InternalServerErrorResponse)

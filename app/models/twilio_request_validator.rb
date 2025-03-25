@@ -9,6 +9,8 @@ class TwilioRequestValidator
     request_validator_for(auth_token).build_signature_for(url, params)
   end
 
+  private
+
   def request_validator_for(auth_token)
     Twilio::Security::RequestValidator.new(auth_token)
   end
