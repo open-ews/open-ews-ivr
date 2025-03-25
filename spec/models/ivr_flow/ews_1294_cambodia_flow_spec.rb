@@ -95,8 +95,7 @@ module IVRFlow
       expect(twiml).to include(
         "Play" => "https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/record_feedback_instructions-khm.mp3",
         "Record" => include(
-          "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_recorded",
-          "recordingStatusCallback" => "https://ivr.open-ews.org/ivr_flows/ews_1294_cambodia/feedback"
+          "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_recorded"
         )
       )
     end

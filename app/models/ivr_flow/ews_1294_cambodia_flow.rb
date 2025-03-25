@@ -182,7 +182,7 @@ module IVRFlow
         if main_menu.leave_feedback?
           Twilio::TwiML::VoiceResponse.new do |response|
             response.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3"))
-            response.record(action: build_redirect_url(status: :feedback_recorded), recording_status_callback: Router.url_for(path: "/ivr_flows/ews_1294_cambodia/feedback", host: request.host, scheme: request.scheme))
+            response.record(action: build_redirect_url(status: :feedback_recorded))
           end
         else
           prompt_language

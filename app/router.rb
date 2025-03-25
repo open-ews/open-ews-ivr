@@ -6,7 +6,6 @@ class Router
 
   ROUTE_DEFINITIONS = [
     RouteDefinition.new(http_method: :post, path: %r{\A\/ivr_flows\/(?<id>\w+)\z}, controller: IVRFlowsController, action: :create),
-    RouteDefinition.new(http_method: :post, path: %r{\A\/ivr_flows\/ews_1294_cambodia\/feedback\z}, controller: EWS1294Cambodia::FeedbackController, action: :create)
   ].freeze
 
   attr_reader :request
@@ -19,10 +18,6 @@ class Router
     ROUTE_DEFINITIONS.find(-> { raise RouteNotFoundError }) do
       _1.path.match?(path) && _1.http_method == http_method
     end
-  end
-
-  def self.url_for(scheme: "https", host:, path:)
-    URI::Generic.build(scheme:, host:, path:).to_s
   end
 
   def resolve

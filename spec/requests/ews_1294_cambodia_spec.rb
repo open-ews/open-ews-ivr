@@ -103,27 +103,4 @@ RSpec.describe "EWS 1294 Cambodia" do
       body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://s3.ap-southeast-1.amazonaws.com/audio.open-ews.org/ews_registration/registration_successful-khm.wav</Play>\n<Hangup/>\n</Response>\n")
     )
   end
-
-  it "handles recording feedback" do
-    uri = URI("https://ivr.open-ews.org/ivr_flows/ews_1294_cambodia/feedback")
-
-    recording_params = {
-      "RecordingUrl" => "https://api.somleng.org/2010-04-01/Accounts/account-sid/Calls/call-sid/Recordings/recording-sid",
-      "RecordingSid" => SecureRandom.uuid,
-      "RecordingStatus" => "completed",
-      "RecordingDuration" => "15",
-      "RecordingStartTime" => Time.current.utc.rfc2822
-    }
-    payload = build_alb_event_payload(
-      path: uri.path,
-      body: URI.encode_www_form(recording_params),
-      headers: {
-        "host" => uri.host,
-        "x-forwarded-proto" => uri.scheme,
-        "x-twilio-signature" => build_twilio_signature(auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b", url: uri.to_s, params: recording_params)
-      }
-    )
-
-    response = invoke_lambda(payload:)
-  end
 end
