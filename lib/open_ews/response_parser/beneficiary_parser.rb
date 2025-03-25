@@ -14,6 +14,7 @@ module OpenEWS
         OpenEWS::Resource::Beneficiary.new(
           id: resource.id,
           phone_number: resource.attributes.fetch("phone_number"),
+          iso_country_code: resource.attributes.fetch("iso_country_code"),
           addresses: Array(resource.relationships.fetch("addresses")).map do |address|
             beneficiary_address_parser.parse(address)
           end

@@ -17,6 +17,16 @@ RSpec.describe CreateBeneficiary do
 
     CreateBeneficiary.call(open_ews_client:, **attributes)
 
+    expect(open_ews_client).to have_received(:list_beneficiaries).with(
+      hash_including(
+        filter: {
+          phone_number: {
+            eq: "+855715100900"
+          }
+        },
+        include: :addresses
+      )
+    )
     expect(open_ews_client).to have_received(:create_beneficiary).with(**attributes)
   end
 

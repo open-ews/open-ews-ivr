@@ -19,16 +19,11 @@ module OpenEWS
       do_request(Net::HTTP::Get.new(build_request_uri("/v1/beneficiaries", query_parameters: options)), response_parser: ResponseParser::CollectionParser.new(ResponseParser::BeneficiaryParser.new))
     end
 
-    def create_beneficiary(address: {}, **params)
+    def create_beneficiary(**params)
       payload = {
         data: {
           type: "beneficiary",
-          attributes: {
-            **params,
-            address: {
-              **address
-            }
-          }
+          attributes: params
         }
       }
 

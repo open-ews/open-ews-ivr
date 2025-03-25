@@ -41,7 +41,8 @@ RSpec.describe "EWS 1294 Cambodia" do
               id: "1",
               type: "beneficiary",
               attributes: {
-                phone_number: "855972346004"
+                phone_number: "855972346004",
+                iso_country_code: "KH"
               },
               relationships: {
                 addresses: {

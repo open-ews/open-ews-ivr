@@ -7,6 +7,7 @@ module OpenEWS
         resource = super
 
         OpenEWS::Resource::Account.new(
+          id: resource.id,
           somleng_account_sid: resource.attributes.fetch("somleng_account_sid"),
           somleng_auth_token: resource.attributes.fetch("somleng_auth_token")
         )

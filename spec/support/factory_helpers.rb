@@ -70,7 +70,8 @@ module FactoryHelpers
   def build_beneficiary(**params)
     OpenEWS::Resource::Beneficiary.new(
       id: "1",
-      phone_number: "+855715100900",
+      phone_number: "855715100900",
+      iso_country_code: "KH",
       addresses: [],
       **params
     )

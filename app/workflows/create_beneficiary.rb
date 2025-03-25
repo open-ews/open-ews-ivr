@@ -29,8 +29,9 @@ class CreateBeneficiary
   def existing_beneficiaries
     @existing_beneficiaries ||= open_ews_client.list_beneficiaries(
       filter: {
-        iso_country_code: beneficiary_attributes.fetch(:iso_country_code),
-        phone_number: beneficiary_attributes.fetch(:phone_number)
+        phone_number: {
+          eq: beneficiary_attributes.fetch(:phone_number)
+        }
       },
       include: :addresses
     )
