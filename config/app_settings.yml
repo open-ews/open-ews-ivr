@@ -6,7 +6,9 @@ default: &default
 production: &production
   <<: *default
   sentry_dsn: "<%= app_settings.credentials.fetch('sentry_dsn') %>"
-  open_ews_accounts: <%= app_settings.credentials.fetch('open_ews_accounts').to_yaml %>
+  open_ews_accounts:
+    ews_1294_cambodia:
+      api_key: "<%= app_settings.credentials.dig('open_ews_accounts', 'ews_1294_cambodia', 'api_key') %>"
 
 staging:
   <<: *production
