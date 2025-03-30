@@ -316,8 +316,9 @@ module IVRFlow
         metadata: {
           created_by: {
             ivr_flow: "IVRFlow::EWS1294CambodiaFlow",
-            source: "https://github.com/open-ews/open-ews-ivr",
-            version: "0.0"
+            source: AppSettings.fetch(:app_source),
+            version: AppSettings.fetch(:app_version),
+            environment: AppSettings.env
           }
         },
         address: {
