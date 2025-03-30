@@ -1,4 +1,4 @@
-require_relative "ews_1294_registration_flow"
+require_relative "ews_1294_cambodia_flow"
 
 module IVRFlow
   class Collection
@@ -7,7 +7,7 @@ module IVRFlow
     Flow = Data.define(:identifier, :handler)
 
     FLOWS = [
-      Flow.new(identifier: "ews_1294_registration", handler: EWS1294RegistrationFlow)
+      Flow.new(identifier: "ews_1294_cambodia", handler: EWS1294CambodiaFlow)
     ]
 
     def self.find(identifier)

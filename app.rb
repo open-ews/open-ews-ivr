@@ -20,12 +20,13 @@ module App
       logger.info("Processing Request: #{payload}")
       request = request_parser.parse(payload)
       route = Router.new(request).resolve
-      response = route.controller.new.handle(request:, route:)
+      response = route.controller.new.public_send(route.action, request:, route:)
       logger.info(serialize(response))
       serialize(response)
     rescue Errors::NotFoundError
       serialize(ALBResponse::NotFoundResponse)
     rescue Exception => e
+      raise(e) unless [ "production", "staging" ].include?(AppSettings.env)
       logger.error(e)
       Sentry.capture_exception(e)
       serialize(ALBResponse::InternalServerErrorResponse)

@@ -1,8 +1,8 @@
 module IVRFlow
-  class Base
+  class Menu
     attr_reader :request
 
-    def initialize(request:)
+    def initialize(request)
       @request = request
     end
   end

@@ -2,7 +2,7 @@ require_relative "response"
 
 module ALBResponse
   class OKResponse < Response
-    def initialize(body:, content_type:, **headers)
+    def initialize(body: "OK", content_type: "text/plain", **headers)
       super(
         status_code: 200,
         status_description: "200 OK",

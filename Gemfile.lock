@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/somleng/encrypted_credentials.git
-  revision: 1058b287277e2dd2ba696fcb8e332c88793c80cf
+  revision: 1c6a2604c836c661969a4dbc388ac0baa1534e6a
   specs:
     encrypted_credentials (0.1.0)
       base64
@@ -22,16 +22,19 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    ast (2.4.2)
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
+    ast (2.4.3)
     aws-eventstream (1.3.2)
-    aws-partitions (1.1065.0)
-    aws-sdk-core (3.220.1)
+    aws-partitions (1.1077.0)
+    aws-sdk-core (3.222.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       base64
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-ssm (1.191.0)
+      logger
+    aws-sdk-ssm (1.192.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.11.0)
@@ -42,7 +45,10 @@ GEM
     coderay (1.1.3)
     concurrent-ruby (1.3.5)
     connection_pool (2.5.0)
-    diff-lcs (1.6.0)
+    crack (1.0.0)
+      bigdecimal
+      rexml
+    diff-lcs (1.6.1)
     docile (1.4.1)
     drb (2.2.1)
     faraday (2.12.2)
@@ -51,6 +57,7 @@ GEM
       logger
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
+    hashdiff (1.1.2)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     jmespath (1.6.2)
@@ -59,25 +66,28 @@ GEM
       base64
     language_server-protocol (3.17.0.4)
     lint_roller (1.1.0)
-    logger (1.6.6)
+    logger (1.7.0)
     method_source (1.1.0)
     mini_portile2 (2.8.8)
     minitest (5.25.5)
     net-http (0.6.0)
       uri
-    nokogiri (1.18.3)
+    nokogiri (1.18.6)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.3-arm64-darwin)
+    nokogiri (1.18.6-arm64-darwin)
       racc (~> 1.4)
     ostruct (0.6.1)
     parallel (1.26.3)
-    parser (3.3.7.1)
+    parser (3.3.7.3)
       ast (~> 2.4.1)
       racc
+    prism (1.4.0)
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    public_suffix (6.0.1)
+    pumi (0.32.0)
     racc (1.8.1)
     rack (3.1.12)
     rainbow (3.1.1)
@@ -97,7 +107,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.2)
-    rubocop (1.73.2)
+    rubocop (1.75.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -105,11 +115,12 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.38.0, < 2.0)
+      rubocop-ast (>= 1.43.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.38.1)
-      parser (>= 3.3.1.0)
+    rubocop-ast (1.43.0)
+      parser (>= 3.3.7.2)
+      prism (~> 1.4)
     rubocop-performance (1.24.0)
       lint_roller (~> 1.1)
       rubocop (>= 1.72.1, < 2.0)
@@ -141,7 +152,7 @@ GEM
       simplecov (~> 0.19)
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
-    twilio-ruby (7.5.0)
+    twilio-ruby (7.5.1)
       benchmark
       faraday (>= 0.9, < 3.0)
       jwt (>= 1.5, < 3.0)
@@ -153,15 +164,22 @@ GEM
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
     uri (1.0.3)
+    webmock (3.25.1)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
   arm64-darwin-24
   ruby
 
 DEPENDENCIES
+  activesupport
   aws-sdk-ssm
   encrypted_credentials!
   pry
+  pumi
+  rack
   rake
   rspec
   rubocop
@@ -172,6 +190,7 @@ DEPENDENCIES
   simplecov
   simplecov-cobertura
   twilio-ruby
+  webmock
 
 BUNDLED WITH
    2.6.5

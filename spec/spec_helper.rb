@@ -14,6 +14,7 @@
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+ENV["APP_ENV"] = "test"
 Bundler.require(:default, :test)
 
 if ENV.key?("CI")
@@ -108,4 +109,4 @@ RSpec.configure do |config|
   #   Kernel.srand config.seed
 end
 
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].sort.each { |f| require f }
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
