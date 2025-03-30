@@ -3,7 +3,7 @@ name: Build
 
 env:
   CI: true
-  REPOSITORY_NAME: open-ews-ivr-registration
+  REPOSITORY_NAME: open-ews-ivr
 
 jobs:
   build:
@@ -168,7 +168,7 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: somleng
-          SENTRY_PROJECT: open-ews-ivr-registration
+          SENTRY_PROJECT: open-ews-ivr
         with:
           environment: ${{ matrix.environment }}
           ignore_missing: true

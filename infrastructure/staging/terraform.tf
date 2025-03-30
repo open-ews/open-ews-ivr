@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket  = "infrastructure.open-ews.org"
-    key     = "open-ews-ivr-registration-staging.tfstate"
+    key     = "open-ews-ivr-staging.tfstate"
     encrypt = true
     region  = "ap-southeast-1"
   }
@@ -26,7 +26,7 @@ data "terraform_remote_state" "core" {
 
   config = {
     bucket = "infrastructure.open-ews.org"
-    key    = "open-ews-ivr-registration.tfstate"
+    key    = "open-ews-ivr.tfstate"
     region = var.aws_default_region
   }
 }
