@@ -101,7 +101,7 @@ RSpec.describe "EWS 1294 Cambodia" do
       headers: {
         "Content-Type" => "application/xml"
       },
-      body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://s3.ap-southeast-1.amazonaws.com/audio.ivr.open-ews.org/ews_1294_cambodia/registration_successful-khm.wav</Play>\n<Hangup/>\n</Response>\n")
+      body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://uploads.open-ews.org/ews_1294_cambodia/registration_successful-khm.wav</Play>\n<Hangup/>\n</Response>\n")
     )
   end
 end

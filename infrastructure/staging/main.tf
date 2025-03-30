@@ -4,7 +4,6 @@ module "app" {
   identifier             = "open-ews-ivr-staging"
   app_environment        = "staging"
   subdomain              = "ivr-staging"
-  audio_bucket           = "audio.ivr-staging.open-ews.org"
   app_image              = data.terraform_remote_state.core.outputs.ecr_repository.this.repository_url
   application_master_key = data.terraform_remote_state.core.outputs.application_master_key
   public_route53_zone    = data.terraform_remote_state.open_ews_core_infrastructure.outputs.route53_zone

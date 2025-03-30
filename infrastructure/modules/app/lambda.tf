@@ -15,7 +15,6 @@ resource "aws_lambda_function" "this" {
   environment {
     variables = {
       APP_MASTER_KEY_SSM_PARAMETER_NAME = var.application_master_key.name
-      AUDIO_BUCKET                      = aws_s3_bucket.audio.id
       APP_ENV                           = var.app_environment
     }
   }

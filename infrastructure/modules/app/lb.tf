@@ -6,7 +6,7 @@ resource "aws_lb_target_group" "public" {
 
 resource "aws_lb_listener_rule" "public" {
   count    = var.public_route53_zone != null ? 1 : 0
-  priority = var.app_environment == "production" ? 11 : 111
+  priority = var.app_environment == "production" ? 42 : 142
 
   listener_arn = var.region.public_load_balancer.https_listener.arn
 
@@ -37,7 +37,7 @@ resource "aws_lb_target_group" "internal" {
 }
 
 resource "aws_lb_listener_rule" "internal" {
-  priority = var.app_environment == "production" ? 11 : 111
+  priority = var.app_environment == "production" ? 42 : 142
 
   listener_arn = var.region.internal_load_balancer.https_listener.arn
 
