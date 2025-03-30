@@ -45,7 +45,7 @@ jobs:
             {
               "identifier": "open-ews-ivr-staging",
               "environment": "staging",
-              "branch": "handle_ews1294_cambodia",
+              "branch": "develop",
               "friendly_image_tag": "beta",
               "image_tag": "stag-${{ github.sha }}"
             },
