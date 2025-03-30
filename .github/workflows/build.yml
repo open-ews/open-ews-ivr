@@ -116,7 +116,7 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.identifier }}
           cache-to: type=gha,mode=max,scope=${{ matrix.identifier }}
           provenance: false
-          build_args: |
+          build-args: |
             APP_VERSION=${{ needs.build.outputs.appVersion }}
             APP_SOURCE=${{ github.server_url }}/${{ github.repository }}
           tags: |
