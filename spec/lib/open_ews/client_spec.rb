@@ -4,7 +4,7 @@ module OpenEWS
   RSpec.describe Client do
     describe "#create_beneficiary" do
       it "creates a new beneficiary" do
-        client = Client.new
+        client = Client.new(api_key: "open-ews-api-key")
 
         stub_request(:post, "https://api.open-ews.org/v1/beneficiaries").to_return(
           body: JSON.dump(
@@ -81,6 +81,9 @@ module OpenEWS
           :post,
           "https://api.open-ews.org/v1/beneficiaries"
         ).with(
+          headers: {
+            "Authorization" => "Bearer open-ews-api-key"
+          },
           body: JSON.dump(
             {
               data: {
