@@ -1,6 +1,8 @@
 default: &default
   audio_host: "<%= ENV.fetch('AUDIO_HOST', 'https://uploads.open-ews.org') %>"
   open_ews_host: "<%= ENV.fetch('OPEN_EWS_HOST', 'https://api.open-ews.org') %>"
+  app_version: "<%= ENV.fetch('APP_VERSION', '0.0') %>"
+  app_source: "<%= ENV.fetch('APP_SOURCE', 'https://github.com/open-ews/open-ews-ivr') %>"
 
 production: &production
   <<: *default

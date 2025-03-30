@@ -157,12 +157,13 @@ module IVRFlow
       end
     end
 
-    attr_reader :request, :open_ews_client
+    attr_reader :request, :open_ews_client, :app_context
 
     def initialize(request, **options)
       @request = request
       @open_ews_client = options.fetch(:open_ews_client) { OpenEWS::Client.new(api_key: options.fetch(:open_ews_api_key) { AppSettings.dig("open_ews_accounts", "ews_1294_cambodia", "api_key") }) }
       @auth_token = options.fetch(:auth_token) { -> { open_ews_client.fetch_account_settings.somleng_auth_token } }
+      @app_context = options.fetch(:app_context) { AppContext.new }
     end
 
     def call
@@ -223,6 +224,9 @@ module IVRFlow
             iso_country_code: ISO_COUNTRY_CODE,
             phone_number: request.twilio.beneficiary,
             language_code: language,
+            metadata: {
+              created_by: app_context.as_json.merge(ivr_flow: self.class.name)
+            },
             address: {
               iso_region_code: commune.province.iso3166_2,
               administrative_division_level_2_code: commune.district.id,

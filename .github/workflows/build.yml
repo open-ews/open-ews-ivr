@@ -12,6 +12,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-deployment-matrix.outputs.matrix }}
       matrixLength: ${{ steps.set-deployment-matrix.outputs.matrixLength }}
+      appVersion: ${{ steps.set-deployment-matrix.outputs.appVersion }}
 
     env:
       APP_ENV: test
@@ -61,7 +62,7 @@ jobs:
           matrix=$(echo $matrixSource | jq --arg branchName "$branchName" 'map(. | select((.branch==$branchName)) )')
           echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
           echo "matrixLength=$(echo $matrix | jq length)" >> $GITHUB_OUTPUT
-
+          echo "appVersion=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
   build-packages:
     name: Build Packages
@@ -115,6 +116,9 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.identifier }}
           cache-to: type=gha,mode=max,scope=${{ matrix.identifier }}
           provenance: false
+          build_args: |
+            APP_VERSION=${{ needs.build.outputs.appVersion }}
+            APP_SOURCE=${{ github.server_url }}/${{ github.repository }}
           tags: |
             ${{ secrets.ECR_REGISTRY }}/${{ env.REPOSITORY_NAME }}:${{ matrix.image_tag }}-arm64
             ${{ secrets.GHCR_REGISTRY }}/${{ env.REPOSITORY_NAME }}:${{ matrix.friendly_image_tag }}-arm64
