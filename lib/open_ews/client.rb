@@ -58,10 +58,9 @@ module OpenEWS
 
     def do_request(req, response_parser:, body: nil)
       req.add_field("Content-Type", "application/vnd.api+json; charset=utf-8")
-      req.add_field("Authorization", "Bearer #{configuration.api_key}")
+      req.add_field("Authorization", "Bearer #{api_key}")
       req.body = JSON.dump(body) if body
       response = http_client.request(req)
-      puts "OpenEWS Response: #{response.body}"
       response_parser.parse(response.body)
     end
 
