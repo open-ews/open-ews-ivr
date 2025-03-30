@@ -308,14 +308,7 @@ module IVRFlow
 
     def build_redirect_url(**params)
       uri = URI(request.path)
-      uri.query = URI.encode_www_form(
-        {
-          language:,
-          province:,
-          district:,
-          **params
-        }.compact.sort.to_h
-      )
+      uri.query = URI.encode_www_form({ language:, province:, district:, **params }.transform_keys(&:to_sym).compact.sort.to_h)
       uri.to_s
     end
 
