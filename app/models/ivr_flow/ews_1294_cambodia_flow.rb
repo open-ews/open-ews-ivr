@@ -310,13 +310,13 @@ module IVRFlow
       uri = URI(request.path)
       uri.query = URI.encode_www_form(
         {
-          "language" => language,
-          "province" => province,
-          "district" => district,
+          language:,
+          province:,
+          district:,
           **params
-        }.compact
+        }.compact.sort.to_h
       )
-      uri.to_str
+      uri.to_s
     end
 
     def prompt(action:, audio_url:)
