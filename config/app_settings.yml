@@ -10,6 +10,8 @@ production: &production
   open_ews_accounts:
     ews_1294_cambodia:
       api_key: "<%= app_settings.credentials.dig('open_ews_accounts', 'ews_1294_cambodia', 'api_key') %>"
+    ews_1939_laos:
+      api_key: "<%= app_settings.credentials.dig('open_ews_accounts', 'ews_1939_laos', 'api_key') %>"
 
 staging:
   <<: *production
@@ -18,6 +20,8 @@ development: &development
   <<: *default
   open_ews_accounts:
     ews_1294_cambodia:
+      api_key: "secret"
+    ews_1939_laos:
       api_key: "secret"
 
 test: &test

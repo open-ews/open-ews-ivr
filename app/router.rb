@@ -5,7 +5,7 @@ class Router
   Route = Data.define(:controller, :action, :parameters)
 
   ROUTE_DEFINITIONS = [
-    RouteDefinition.new(http_method: :post, path: %r{\A\/ivr_flows\/(?<id>\w+)\z}, controller: IVRFlowsController, action: :create),
+    RouteDefinition.new(http_method: :post, path: %r{\A\/ivr_flows\/(?<id>\w+)\z}, controller: IVRFlowsController, action: :create)
   ].freeze
 
   attr_reader :request

@@ -2,7 +2,7 @@ require "spec_helper"
 
 module IVRFlow
   RSpec.describe EWS1294CambodiaFlow do
-    it "plays the introduction" do
+    it "plays the introduction and goes to the language menu" do
       request = build_ivr_request
       flow = EWS1294CambodiaFlow.new(request)
 
@@ -11,15 +11,15 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
         "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/introduction-khm.wav",
-        "Redirect" => "/ivr_flows/ews_1294_cambodia?status=introduction_played"
+        "Gather" => include(
+          "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
+        )
       )
     end
 
     it "goes to the main menu (for selected beneficiaries)" do
       request = build_ivr_request(
-        query_parameters: {
-          "status" => "introduction_played"
-        },
         twilio: {
           params: {
             beneficiary: "+855715100860"
@@ -31,26 +31,12 @@ module IVRFlow
       response = flow.call
 
       twiml = response_twiml(response_body(response))
-      expect(twiml.fetch("Gather")).to include(
-        "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
-        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
-      )
-    end
-
-    it "goes to the language menu" do
-      request = build_ivr_request(
-        query_parameters: {
-          "status" => "introduction_played"
-        }
-      )
-      flow = EWS1294CambodiaFlow.new(request)
-
-      response = flow.call
-
-      twiml = response_twiml(response_body(response))
-      expect(twiml.fetch("Gather")).to include(
-        "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
-        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
+      expect(twiml).to include(
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/introduction-khm.wav",
+        "Gather" => include(
+          "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
+        )
       )
     end
 
