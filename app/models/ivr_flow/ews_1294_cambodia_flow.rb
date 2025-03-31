@@ -174,11 +174,7 @@ module IVRFlow
           response.redirect(build_redirect_url(status: :introduction_played))
         end
       when "introduction_played"
-        if main_menu.feedback_enabled?
-          prompt(action: build_redirect_url(status: :main_menu_prompted), audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3"))
-        else
-          prompt_language
-        end
+        prompt_main_menu
       when "main_menu_prompted"
         if main_menu.leave_feedback?
           Twilio::TwiML::VoiceResponse.new do |response|
@@ -197,6 +193,8 @@ module IVRFlow
         if language_menu.valid_choice?
           @language = language_menu.selection.id
           prompt_province
+        elsif language_menu.start_over?
+          prompt_main_menu
         else
           prompt_language
         end
@@ -204,6 +202,8 @@ module IVRFlow
         if province_menu.valid_choice?
           @province = province_menu.selection.id
           prompt_district
+        elsif province_menu.start_over?
+          prompt_main_menu
         else
           prompt_province
         end
@@ -211,6 +211,8 @@ module IVRFlow
         if district_menu.valid_choice?
           @district = district_menu.selection.id
           prompt_commune
+        elsif district_menu.start_over?
+          prompt_main_menu
         else
           prompt_district
         end
@@ -240,6 +242,8 @@ module IVRFlow
             response.play(url: build_audio_url(filename: :registration_successful, language:))
             response.hangup
           end
+        elsif commune_menu.start_over?
+          prompt_main_menu
         else
           prompt_commune
         end
@@ -290,20 +294,43 @@ module IVRFlow
       @district ||= request.query_parameters["district"]
     end
 
+    def prompt_main_menu
+      if main_menu.feedback_enabled?
+        prompt(
+          action: build_redirect_url(status: :main_menu_prompted),
+          audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3")
+        )
+      else
+        prompt_language
+      end
+    end
+
     def prompt_language
-      prompt(action: build_redirect_url(status: :language_prompted), audio_url: build_audio_url(filename: :select_language))
+      prompt(
+        action: build_redirect_url(status: :language_prompted),
+        audio_url: build_audio_url(filename: :select_language)
+      )
     end
 
     def prompt_province
-      prompt(action: build_redirect_url(status: :province_prompted), audio_url: build_audio_url(filename: :select_province, language:))
+      prompt(
+        action: build_redirect_url(status: :province_prompted, language:),
+        audio_url: build_audio_url(filename: :select_province, language:)
+      )
     end
 
     def prompt_district
-      prompt(action: build_redirect_url(status: :district_prompted), audio_url: build_audio_url(filename: province, language:))
+      prompt(
+        action: build_redirect_url(status: :district_prompted, language:, province:),
+        audio_url: build_audio_url(filename: province, language:)
+      )
     end
 
     def prompt_commune
-      prompt(action: build_redirect_url(status: :commune_prompted), audio_url: build_audio_url(filename: district, language:))
+      prompt(
+        action: build_redirect_url(status: :commune_prompted, language:, province:, district:),
+        audio_url: build_audio_url(filename: district, language:)
+      )
     end
 
     def build_audio_url(**)
@@ -312,7 +339,7 @@ module IVRFlow
 
     def build_redirect_url(**params)
       uri = URI(request.path)
-      uri.query = URI.encode_www_form({ language:, province:, district:, **params }.transform_keys(&:to_sym).compact.sort.to_h)
+      uri.query = URI.encode_www_form(params.transform_keys(&:to_sym).compact.sort.to_h)
       uri.to_s
     end
 
