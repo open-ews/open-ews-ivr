@@ -356,6 +356,31 @@ module IVRFlow
       )
     end
 
+    it "handles starting over from commune menu" do
+      request = build_ivr_request(
+        query_parameters: {
+          "status" => "commune_prompted",
+          "language" => "cmo",
+          "province" => "11",
+          "district" => "1102"
+        },
+        twilio: {
+          params: {
+            digits: "*"
+          }
+        }
+      )
+      flow = EWS1294CambodiaFlow.new(request)
+
+      response = flow.call
+
+      twiml = response_twiml(response_body(response))
+      expect(twiml.fetch("Gather")).to include(
+        "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
+        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
+      )
+    end
+
     def build_ivr_request(**options)
       build_twilio_request(
         path: "/ivr_flows/ews_1294_cambodia",
