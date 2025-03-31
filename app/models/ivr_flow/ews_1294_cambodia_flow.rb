@@ -24,11 +24,11 @@ module IVRFlow
       ].freeze
 
       def valid_choice?
-        (1..CHOICES.size).member?(request.twilio.digits)
+        (1..CHOICES.size).member?(response.choice)
       end
 
       def selection
-        CHOICES[request.twilio.digits - 1] if valid_choice?
+        CHOICES[response.choice - 1] if valid_choice?
       end
     end
 
@@ -39,11 +39,11 @@ module IVRFlow
       ].freeze
 
       def leave_feedback?
-        request.twilio.digits == 2
+        response.choice == 2
       end
 
       def feedback_enabled?
-        FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS.include?(request.twilio.beneficiary)
+        FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS.include?(response.request.twilio.beneficiary)
       end
     end
 
@@ -93,11 +93,11 @@ module IVRFlow
       ].freeze
 
       def valid_choice?
-        choices.include?(request.twilio.digits)
+        choices.include?(response.choice)
       end
 
       def selection
-        MENU[request.twilio.digits - 1] if valid_choice?
+        MENU[response.choice - 1] if valid_choice?
       end
 
       private
@@ -119,11 +119,11 @@ module IVRFlow
       end
 
       def valid_choice?
-        (1..districts.size).member?(request.twilio.digits)
+        (1..districts.size).member?(response.choice)
       end
 
       def selection
-        districts[request.twilio.digits - 1] if valid_choice?
+        districts[response.choice - 1] if valid_choice?
       end
 
       private
@@ -143,11 +143,11 @@ module IVRFlow
       end
 
       def valid_choice?
-        (1..communes.size).member?(request.twilio.digits)
+        (1..communes.size).member?(response.choice)
       end
 
       def selection
-        communes[request.twilio.digits - 1] if valid_choice?
+        communes[response.choice - 1] if valid_choice?
       end
 
       private
@@ -193,7 +193,7 @@ module IVRFlow
         if language_menu.valid_choice?
           @language = language_menu.selection.id
           prompt_province
-        elsif language_menu.start_over?
+        elsif language_menu.response.start_over?
           prompt_main_menu
         else
           prompt_language
@@ -202,7 +202,7 @@ module IVRFlow
         if province_menu.valid_choice?
           @province = province_menu.selection.id
           prompt_district
-        elsif province_menu.start_over?
+        elsif province_menu.response.start_over?
           prompt_main_menu
         else
           prompt_province
@@ -211,7 +211,7 @@ module IVRFlow
         if district_menu.valid_choice?
           @district = district_menu.selection.id
           prompt_commune
-        elsif district_menu.start_over?
+        elsif district_menu.response.start_over?
           prompt_main_menu
         else
           prompt_district
@@ -242,7 +242,7 @@ module IVRFlow
             response.play(url: build_audio_url(filename: :registration_successful, language:))
             response.hangup
           end
-        elsif commune_menu.start_over?
+        elsif commune_menu.response.start_over?
           prompt_main_menu
         else
           prompt_commune
@@ -262,24 +262,28 @@ module IVRFlow
       @auth_token.respond_to?(:call) ? @auth_token.call : @auth_token
     end
 
+    def menu_response
+      @menu_response ||= MenuResponse.new(request)
+    end
+
     def main_menu
-      @main_menu ||= MainMenu.new(request)
+      @main_menu ||= MainMenu.new(menu_response)
     end
 
     def language_menu
-      @language_menu ||= LanguageMenu.new(request)
+      @language_menu ||= LanguageMenu.new(menu_response)
     end
 
     def province_menu
-      @province_menu ||= ProvinceMenu.new(request, language:)
+      @province_menu ||= ProvinceMenu.new(menu_response, language:)
     end
 
     def district_menu
-      @district_menu ||= DistrictMenu.new(request, language:, province:)
+      @district_menu ||= DistrictMenu.new(menu_response, language:, province:)
     end
 
     def commune_menu
-      @commune_menu ||= CommuneMenu.new(request, language:, district:)
+      @commune_menu ||= CommuneMenu.new(menu_response, language:, district:)
     end
 
     def language

@@ -26,7 +26,7 @@ class TwilioRequestParser
     end
 
     def digits
-      params.key?("Digits") && !params.fetch("Digits").to_s.empty? ? params.fetch("Digits").to_i : nil
+      params.key?("Digits") && !params.fetch("Digits").to_s.empty? ? params.fetch("Digits") : nil
     end
 
     def direction

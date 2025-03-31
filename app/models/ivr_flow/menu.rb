@@ -1,14 +1,9 @@
 module IVRFlow
   class Menu
-    attr_reader :request
+    attr_reader :response
 
-    def initialize(request, **options)
-      @request = request
-      @start_over = options.fetch(:start_over) { -> { request.twilio.digits == "*" } }
-    end
-
-    def start_over?
-      !!@start_over.call
+    def initialize(response)
+      @response = response
     end
   end
 end
