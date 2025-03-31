@@ -14,7 +14,7 @@
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
-ENV["APP_ENV"] = "test"
+ENV["APP_ENV"] ||= "test"
 Bundler.require(:default, :test)
 
 if ENV.key?("CI")
