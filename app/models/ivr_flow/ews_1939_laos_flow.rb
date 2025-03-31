@@ -85,10 +85,7 @@ module IVRFlow
             }
           )
 
-          Twilio::TwiML::VoiceResponse.new do |response|
-            response.play(url: build_audio_url(filename: :registration_successful))
-            response.hangup
-          end
+          twiml_builder.hangup(before: ->(response) { response.play(url: build_audio_url(filename: :registration_successful)) })
         elsif district_menu.response.start_over?
           prompt_province
         else
