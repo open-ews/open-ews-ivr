@@ -12,5 +12,16 @@ module PumiLao
         iso3166_2: "LA-SL"
       )
     end
+
+    it "can filter provinces" do
+      provinces = Province.where(id: "14")
+
+      expect(provinces).to contain_exactly(
+        have_attributes(
+          id: "14",
+          name_en: "Salavan"
+        )
+      )
+    end
   end
 end
