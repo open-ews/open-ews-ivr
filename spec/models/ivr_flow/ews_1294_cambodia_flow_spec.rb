@@ -22,7 +22,7 @@ module IVRFlow
         },
         twilio: {
           params: {
-            from: "+855715100860"
+            beneficiary: "+855715100860"
           }
         }
       )
@@ -33,7 +33,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
       )
     end
 
@@ -50,7 +50,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
       )
     end
 
@@ -72,7 +72,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
       )
     end
 
@@ -135,7 +135,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=cmo&status=province_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/select_province-cmo.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/select_province-cmo.wav"
       )
     end
 
@@ -157,7 +157,30 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
+      )
+    end
+
+    it "handles starting over from the language menu" do
+      request = build_ivr_request(
+        query_parameters: {
+          "status" => "language_prompted"
+        },
+        twilio: {
+          params: {
+            digits: "*",
+            beneficiary: "+855715100860"
+          }
+        }
+      )
+      flow = EWS1294CambodiaFlow.new(request)
+
+      response = flow.call
+
+      twiml = response_twiml(response_body(response))
+      expect(twiml.fetch("Gather")).to include(
+        "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
       )
     end
 
@@ -180,7 +203,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=cmo&province=11&status=district_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/11-cmo.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/11-cmo.wav"
       )
     end
 
@@ -202,7 +225,30 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=khm&status=province_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/select_province-khm.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/select_province-khm.wav"
+      )
+    end
+
+    it "handles starting over from the province menu" do
+      request = build_ivr_request(
+        query_parameters: {
+          "status" => "province_prompted",
+          "language" => "khm"
+        },
+        twilio: {
+          params: {
+            digits: "*",
+            beneficiary: "+855715100860"
+          }
+        }
+      )
+      flow = EWS1294CambodiaFlow.new(request)
+
+      response = flow.call
+      twiml = response_twiml(response_body(response))
+      expect(twiml.fetch("Gather")).to include(
+        "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
       )
     end
 
@@ -226,7 +272,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?district=1102&language=cmo&province=11&status=commune_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/1102-cmo.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/1102-cmo.wav"
       )
     end
 
@@ -250,7 +296,32 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?language=cmo&province=11&status=district_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/11-cmo.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/11-cmo.wav"
+      )
+    end
+
+    it "handles starting over from the district menu" do
+      request = build_ivr_request(
+        query_parameters: {
+          "status" => "district_prompted",
+          "language" => "cmo",
+          "province" => "11"
+        },
+        twilio: {
+          params: {
+            digits: "*",
+            beneficiary: "+855715100860"
+          }
+        }
+      )
+      flow = EWS1294CambodiaFlow.new(request)
+
+      response = flow.call
+
+      twiml = response_twiml(response_body(response))
+      expect(twiml.fetch("Gather")).to include(
+        "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
       )
     end
 
@@ -352,7 +423,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?district=1102&language=cmo&province=11&status=commune_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/1102-cmo.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/1102-cmo.wav"
       )
     end
 
@@ -377,7 +448,7 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
         "action" => "/ivr_flows/ews_1294_cambodia?status=language_prompted",
-        "Play"=> "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
+        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/select_language.wav"
       )
     end
 
