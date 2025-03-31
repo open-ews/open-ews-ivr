@@ -2,7 +2,7 @@ require "spec_helper"
 
 module IVRFlow
   RSpec.describe EWS1939LaosFlow do
-    it "plays the introduction" do
+    it "plays the introduction and goes to the province selection menu" do
       request = build_ivr_request
       flow = EWS1939LaosFlow.new(request)
 
@@ -11,24 +11,10 @@ module IVRFlow
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
         "Play" => "https://uploads.open-ews.org/ews_1939_laos/introduction-lao.mp3",
-        "Redirect" => "/ivr_flows/ews_1939_laos?status=introduction_played"
-      )
-    end
-
-    it "goes to the province selection menu" do
-      request = build_ivr_request(
-        query_parameters: {
-          "status" => "introduction_played"
-        }
-      )
-      flow = EWS1939LaosFlow.new(request)
-
-      response = flow.call
-
-      twiml = response_twiml(response_body(response))
-      expect(twiml.fetch("Gather")).to include(
-        "action" => "/ivr_flows/ews_1939_laos?status=province_prompted",
-        "Play" => "https://uploads.open-ews.org/ews_1939_laos/select_province-lao.mp3"
+        "Gather" => include(
+          "action" => "/ivr_flows/ews_1939_laos?status=province_prompted",
+          "Play" => "https://uploads.open-ews.org/ews_1939_laos/select_province-lao.mp3"
+        )
       )
     end
 

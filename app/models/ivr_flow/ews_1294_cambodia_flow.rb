@@ -157,38 +157,31 @@ module IVRFlow
       end
     end
 
-    attr_reader :request, :open_ews_client, :app_context
+    attr_reader :request, :open_ews_client, :app_context, :twiml_builder
 
     def initialize(request, **options)
       @request = request
       @open_ews_client = options.fetch(:open_ews_client) { OpenEWS::Client.new(api_key: options.fetch(:open_ews_api_key) { AppSettings.dig("open_ews_accounts", "ews_1294_cambodia", "api_key") }) }
       @auth_token = options.fetch(:auth_token) { -> { open_ews_client.fetch_account_settings.somleng_auth_token } }
       @app_context = options.fetch(:app_context) { AppContext.new }
+      @twiml_builder = options.fetch(:twiml_builder) { TwiMLBuilder.new }
     end
 
     def call
       twiml = case status
       when "answered"
-        Twilio::TwiML::VoiceResponse.new do |response|
-          response.play(url: build_audio_url(filename: :introduction, language: "khm"))
-          response.redirect(build_redirect_url(status: :introduction_played))
-        end
-      when "introduction_played"
-        prompt_main_menu
+        prompt_main_menu(before: ->(response) { response.play(url: build_audio_url(filename: :introduction, language: "khm")) })
       when "main_menu_prompted"
         if main_menu.leave_feedback?
-          Twilio::TwiML::VoiceResponse.new do |response|
-            response.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3"))
-            response.record(action: build_redirect_url(status: :feedback_recorded))
-          end
+          twiml_builder.record(
+            before: ->(response) { response.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3")) },
+            action: build_redirect_url(status: :feedback_recorded)
+          )
         else
           prompt_language
         end
       when "feedback_recorded"
-        Twilio::TwiML::VoiceResponse.new do |response|
-          response.play(url: build_audio_url(filename: :feedback_successful, language: "khm", file_extension: "mp3"))
-          response.hangup
-        end
+        twiml_builder.hangup(before: ->(response) { response.play(url: build_audio_url(filename: :feedback_successful, language: "khm", file_extension: "mp3")) })
       when "language_prompted"
         if language_menu.valid_choice?
           @language = language_menu.selection.id
@@ -238,10 +231,7 @@ module IVRFlow
             }
           )
 
-          Twilio::TwiML::VoiceResponse.new do |response|
-            response.play(url: build_audio_url(filename: :registration_successful, language:))
-            response.hangup
-          end
+          twiml_builder.hangup(before: ->(response) { response.play(url: build_audio_url(filename: :registration_successful, language:)) })
         elsif commune_menu.response.start_over?
           prompt_main_menu
         else
@@ -298,21 +288,23 @@ module IVRFlow
       @district ||= request.query_parameters["district"]
     end
 
-    def prompt_main_menu
+    def prompt_main_menu(**)
       if main_menu.feedback_enabled?
         prompt(
           action: build_redirect_url(status: :main_menu_prompted),
-          audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3")
+          audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3"),
+          **
         )
       else
-        prompt_language
+        prompt_language(**)
       end
     end
 
-    def prompt_language
+    def prompt_language(**)
       prompt(
         action: build_redirect_url(status: :language_prompted),
-        audio_url: build_audio_url(filename: :select_language)
+        audio_url: build_audio_url(filename: :select_language),
+        **
       )
     end
 
@@ -347,12 +339,8 @@ module IVRFlow
       uri.to_s
     end
 
-    def prompt(action:, audio_url:)
-      Twilio::TwiML::VoiceResponse.new do |response|
-        response.gather(action_on_empty_result: true, action:) do |gather|
-          gather.play(url: audio_url)
-        end
-      end
+    def prompt(...)
+      twiml_builder.prompt(...)
     end
   end
 end

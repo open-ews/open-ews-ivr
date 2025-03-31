@@ -44,24 +44,20 @@ module IVRFlow
       end
     end
 
-    attr_reader :request, :open_ews_client, :app_context
+    attr_reader :request, :open_ews_client, :app_context, :twiml_builder
 
     def initialize(request, **options)
       @request = request
       @open_ews_client = options.fetch(:open_ews_client) { OpenEWS::Client.new(api_key: options.fetch(:open_ews_api_key) { AppSettings.dig("open_ews_accounts", "ews_1939_laos", "api_key") }) }
       @auth_token = options.fetch(:auth_token) { -> { open_ews_client.fetch_account_settings.somleng_auth_token } }
       @app_context = options.fetch(:app_context) { AppContext.new }
+      @twiml_builder = options.fetch(:twiml_builder) { TwiMLBuilder.new }
     end
 
     def call
       twiml = case status
       when "answered"
-        Twilio::TwiML::VoiceResponse.new do |response|
-          response.play(url: build_audio_url(filename: :introduction))
-          response.redirect(build_redirect_url(status: :introduction_played))
-        end
-      when "introduction_played"
-        prompt_province
+        prompt_province(before: ->(response) { response.play(url: build_audio_url(filename: :introduction)) })
       when "province_prompted"
         if province_menu.valid_choice?
           @province = province_menu.selection.id
@@ -123,10 +119,11 @@ module IVRFlow
       uri.to_s
     end
 
-    def prompt_province
+    def prompt_province(**)
       prompt(
         action: build_redirect_url(status: :province_prompted),
-        audio_url: build_audio_url(filename: :select_province)
+        audio_url: build_audio_url(filename: :select_province),
+        **
       )
     end
 
@@ -153,12 +150,8 @@ module IVRFlow
       @province ||= request.query_parameters["province"]
     end
 
-    def prompt(action:, audio_url:)
-      Twilio::TwiML::VoiceResponse.new do |response|
-        response.gather(action_on_empty_result: true, action:) do |gather|
-          gather.play(url: audio_url)
-        end
-      end
+    def prompt(...)
+      twiml_builder.prompt(...)
     end
   end
 end
