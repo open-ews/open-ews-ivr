@@ -59,8 +59,8 @@ module IVRFlow
 
       attr_reader :language
 
-      def initialize(request, language:)
-        super(request)
+      def initialize(response, language:)
+        super(response)
         @language = language
       end
 
@@ -112,8 +112,8 @@ module IVRFlow
     class DistrictMenu < IVRFlow::Menu
       attr_reader :language, :province
 
-      def initialize(request, language:, province:)
-        super(request)
+      def initialize(response, language:, province:)
+        super(response)
         @language = language
         @province = province
       end
@@ -136,8 +136,8 @@ module IVRFlow
     class CommuneMenu < IVRFlow::Menu
       attr_reader :language, :district
 
-      def initialize(request, language:, district:)
-        super(request)
+      def initialize(response, language:, district:)
+        super(response)
         @language = language
         @district = district
       end
