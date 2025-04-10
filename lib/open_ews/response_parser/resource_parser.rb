@@ -25,6 +25,7 @@ module OpenEWS
 
         def relationships
           @relationships ||= data.fetch("relationships", {}).each_with_object(Hash.new { |h, k| h[k] = Array.new }) do |(name, relationship_payload), result|
+            result[name] = []
             relationship_payload.fetch("data", []).each do |relationship_data|
               relationship_attributes = included.find(-> { {} }) do
                 _1.fetch("id") == relationship_data.fetch("id") && _1.fetch("type") == relationship_data.fetch("type")
