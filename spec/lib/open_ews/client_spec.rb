@@ -251,7 +251,7 @@ module OpenEWS
           body: JSON.dump(
             {
               data: {
-                type: "address",
+                type: "beneficiary_address",
                 attributes: {
                   iso_region_code: "KH-1",
                   administrative_division_level_2_code: "0102",
