@@ -1,0 +1,17 @@
+{
+  "data": {
+    "id": "27",
+    "type": "beneficiary_address",
+    "attributes": {
+      "created_at": "2025-04-11T08:36:41Z",
+      "updated_at": "2025-04-11T08:36:41Z",
+      "iso_region_code": "KH-1",
+      "administrative_division_level_2_code": "0102",
+      "administrative_division_level_2_name": "Mongkol Borei",
+      "administrative_division_level_3_code": "010201",
+      "administrative_division_level_3_name": "Banteay Neang",
+      "administrative_division_level_4_code": "01020101",
+      "administrative_division_level_4_name": "Ou Thum"
+    }
+  }
+}

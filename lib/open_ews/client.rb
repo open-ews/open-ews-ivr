@@ -33,7 +33,7 @@ module OpenEWS
     def create_beneficiary_address(beneficiary_id:, **params)
       payload = {
         data: {
-          type: "address",
+          type: "beneficiary_address",
           attributes: {
             **params
           }
