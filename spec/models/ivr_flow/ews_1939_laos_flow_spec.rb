@@ -114,7 +114,7 @@ module IVRFlow
       flow.call
 
       expect(open_ews_client).to have_received(:create_beneficiary).with(
-        language_code: "lao",
+        iso_language_code: "lao",
         iso_country_code: "LA",
         phone_number: "+855715100900",
         metadata: {
