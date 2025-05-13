@@ -65,7 +65,7 @@ RSpec.describe CreateBeneficiary do
       list_beneficiaries: [ build_beneficiary(addresses: [ build_beneficiary_address(**address_attributes) ]) ]
     )
     attributes = {
-      language_code: "khm",
+      iso_language_code: "khm",
       iso_country_code: "KH",
       phone_number: "+855715100900",
       address: address_attributes

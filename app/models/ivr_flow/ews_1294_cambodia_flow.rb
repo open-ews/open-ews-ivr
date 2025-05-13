@@ -218,7 +218,7 @@ module IVRFlow
             open_ews_client:,
             iso_country_code: ISO_COUNTRY_CODE,
             phone_number: request.twilio.beneficiary,
-            language_code: language,
+            iso_language_code: language,
             metadata: {
               created_by: app_context.as_json.merge(ivr_flow: self.class.name)
             },
