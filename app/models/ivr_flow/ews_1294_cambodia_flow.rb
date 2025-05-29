@@ -47,6 +47,53 @@ module IVRFlow
       end
     end
 
+    class FeedbackMenu < IVRFlow::Menu
+      class MainMenu < IVRFlow::Menu
+        SubmenuDefinition = Data.define(:name, :number_of_submenu_choices)
+
+        SUBMENU_DEFINITIONS = [
+          SubmenuDefinition.new(name: :feedback_registration_issues_menu, number_of_submenu_choices: 2),
+          SubmenuDefinition.new(name: :feedback_content_issues_menu, number_of_submenu_choices: 3),
+          SubmenuDefinition.new(name: :general_feedback_menu, number_of_submenu_choices: 4)
+        ].freeze
+
+        def valid_choice?
+          (1..SUBMENU_DEFINITIONS.size).member?(response.choice)
+        end
+
+        def selection
+          SUBMENU_DEFINITIONS[response.choice - 1] if valid_choice?
+        end
+
+        def submenu(name)
+          Submenu.new(response, number_of_choices: find_submenu_definition(name).number_of_submenu_choices)
+        end
+
+        private
+
+        def find_submenu_definition(name)
+          SUBMENU_DEFINITIONS.find(-> { raise ArgumentError, "Submenu not found for #{name}" }) { |definition| definition.name == name.to_sym }
+        end
+      end
+
+      class Submenu < IVRFlow::Menu
+        attr_reader :number_of_choices
+
+        def initialize(*, number_of_choices:)
+          super(*)
+          @number_of_choices = number_of_choices
+        end
+
+        def valid_choice?
+          (1..number_of_choices).member?(response.choice)
+        end
+      end
+
+      def main_menu
+        MainMenu.new(response)
+      end
+    end
+
     class ProvinceMenu < IVRFlow::Menu
       class Province
         attr_reader :id, :available_languages
@@ -173,12 +220,27 @@ module IVRFlow
         prompt_main_menu(before: ->(response) { response.play(url: build_audio_url(filename: :introduction, language: "khm")) })
       when "main_menu_prompted"
         if main_menu.leave_feedback?
-          twiml_builder.record(
-            before: ->(response) { response.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3")) },
-            action: build_redirect_url(status: :feedback_recorded)
-          )
+          prompt_feedback_main_menu
         else
           prompt_language
+        end
+      when "feedback_main_menu_prompted"
+        menu = feedback_menu.main_menu
+        if menu.valid_choice?
+          prompt_feedback_submenu(menu_name: menu.selection.name)
+        elsif menu.response.start_over?
+          prompt_main_menu
+        else
+          prompt_feedback_main_menu
+        end
+      when *FeedbackMenu::MainMenu::SUBMENU_DEFINITIONS.map { |definition| "#{definition.name}_prompted" }
+        menu = feedback_menu.main_menu.submenu(status.delete_suffix("_prompted"))
+        if menu.valid_choice?
+          record_feedback
+        elsif menu.response.start_over?
+          prompt_main_menu
+        else
+          prompt_feedback_submenu(menu_name: :feedback_registration_issues_menu)
         end
       when "feedback_recorded"
         twiml_builder.hangup(before: ->(response) { response.play(url: build_audio_url(filename: :feedback_successful, language: "khm", file_extension: "mp3")) })
@@ -260,6 +322,10 @@ module IVRFlow
       @main_menu ||= MainMenu.new(menu_response)
     end
 
+    def feedback_menu
+      @feedback_menu ||= FeedbackMenu.new(menu_response)
+    end
+
     def language_menu
       @language_menu ||= LanguageMenu.new(menu_response)
     end
@@ -300,6 +366,21 @@ module IVRFlow
       end
     end
 
+    def prompt_feedback_main_menu
+      prompt(
+        action: build_redirect_url(status: :feedback_main_menu_prompted),
+        audio_url: build_audio_url(filename: :feedback_main_menu, language: "khm", file_extension: "mp3"),
+        before: ->(response) { response.play(url: build_audio_url(filename: :feedback_introduction, language: "khm")) }
+      )
+    end
+
+    def prompt_feedback_submenu(menu_name:)
+      prompt(
+        action: build_redirect_url(status: "#{menu_name}_prompted"),
+        audio_url: build_audio_url(filename: menu_name, language: "khm", file_extension: "mp3"),
+      )
+    end
+
     def prompt_language(**)
       prompt(
         action: build_redirect_url(status: :language_prompted),
@@ -326,6 +407,13 @@ module IVRFlow
       prompt(
         action: build_redirect_url(status: :commune_prompted, language:, province:, district:),
         audio_url: build_audio_url(filename: district, language:)
+      )
+    end
+
+    def record_feedback
+      twiml_builder.record(
+        before: ->(response) { response.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3")) },
+        action: build_redirect_url(status: :feedback_recorded)
       )
     end
 

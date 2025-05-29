@@ -18,7 +18,7 @@ module IVRFlow
       )
     end
 
-    it "goes to the main menu (for selected beneficiaries)" do
+    it "goes to the main menu" do
       request = build_ivr_request(
         twilio: {
           params: {
@@ -62,45 +62,242 @@ module IVRFlow
       )
     end
 
-    it "handles recording feedback from the main menu" do
-      request = build_ivr_request(
-        query_parameters: {
-          "status" => "main_menu_prompted"
-        },
-        twilio: {
-          params: {
-            digits: 2
+    context "when navigating to the feedback main menu" do
+      it "handles navigating from the main menu" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "main_menu_prompted"
+          },
+          twilio: {
+            params: {
+              digits: 2
+            }
           }
-        }
-      )
-      flow = EWS1294CambodiaFlow.new(request)
-
-      response = flow.call
-
-      twiml = response_twiml(response_body(response))
-      expect(twiml).to include(
-        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/record_feedback_instructions-khm.mp3",
-        "Record" => include(
-          "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_recorded"
         )
-      )
-    end
+        flow = EWS1294CambodiaFlow.new(request)
 
-    it "confirms the feedback was recorded successfully" do
-      request = build_ivr_request(
-        query_parameters: {
-          "status" => "feedback_recorded"
-        }
-      )
-      flow = EWS1294CambodiaFlow.new(request)
+        response = flow.call
 
-      response = flow.call
+        twiml = response_twiml(response_body(response))
+        expect(twiml).to include(
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/feedback_introduction-khm.wav",
+          "Gather" => include(
+            "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_main_menu_prompted",
+            "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/feedback_main_menu-khm.mp3"
+          )
+        )
+      end
 
-      twiml = response_twiml(response_body(response))
-      expect(twiml).to include(
-        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/feedback_successful-khm.mp3",
-        "Hangup" => nil
-      )
+      context "when navigating to the feedback registration issues menu" do
+        it "handles navigating from the feedback main menu" do
+          request = build_ivr_request(
+            query_parameters: {
+              "status" => "feedback_main_menu_prompted"
+            },
+            twilio: {
+              params: {
+                digits: 1
+              }
+            }
+          )
+          flow = EWS1294CambodiaFlow.new(request)
+
+          response = flow.call
+
+          twiml = response_twiml(response_body(response))
+          expect(twiml).to include(
+            "Gather" => include(
+              "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_registration_issues_menu_prompted",
+              "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/feedback_registration_issues_menu-khm.mp3"
+            )
+          )
+        end
+
+        it "records feedback" do
+          request = build_ivr_request(
+            query_parameters: {
+              "status" => "feedback_registration_issues_menu_prompted"
+            },
+            twilio: {
+              params: {
+                digits: 1
+              }
+            }
+          )
+          flow = EWS1294CambodiaFlow.new(request)
+
+          response = flow.call
+
+          twiml = response_twiml(response_body(response))
+          expect(twiml).to include(
+            "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/record_feedback_instructions-khm.mp3",
+            "Record" => include(
+              "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_recorded",
+            )
+          )
+        end
+
+        it "handles starting over" do
+          request = build_ivr_request(
+            query_parameters: {
+              "status" => "feedback_registration_issues_menu_prompted"
+            },
+            twilio: {
+              params: {
+                digits: "*",
+                beneficiary: "+855715100860"
+              }
+            }
+          )
+          flow = EWS1294CambodiaFlow.new(request)
+
+          response = flow.call
+
+          twiml = response_twiml(response_body(response))
+          expect(twiml.fetch("Gather")).to include(
+            "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+            "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
+          )
+        end
+
+        it "handles invalid responses" do
+          request = build_ivr_request(
+            query_parameters: {
+              "status" => "feedback_registration_issues_menu_prompted"
+            },
+            twilio: {
+              params: {
+                digits: 99
+              }
+            }
+          )
+          flow = EWS1294CambodiaFlow.new(request)
+
+          response = flow.call
+
+          twiml = response_twiml(response_body(response))
+          expect(twiml).to include(
+            "Gather" => include(
+              "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_registration_issues_menu_prompted",
+              "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/feedback_registration_issues_menu-khm.mp3"
+            )
+          )
+        end
+      end
+
+      context "when navigating to the feedback content issues menu" do
+        it "handles navigating from the feedback main menu" do
+          request = build_ivr_request(
+            query_parameters: {
+              "status" => "feedback_main_menu_prompted"
+            },
+            twilio: {
+              params: {
+                digits: 2
+              }
+            }
+          )
+          flow = EWS1294CambodiaFlow.new(request)
+
+          response = flow.call
+
+          twiml = response_twiml(response_body(response))
+          expect(twiml).to include(
+            "Gather" => include(
+              "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_content_issues_menu_prompted",
+              "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/feedback_content_issues_menu-khm.mp3"
+            )
+          )
+        end
+      end
+
+      context "when navigating to the general feedback menu" do
+        it "handles navigating from the feedback main menu" do
+          request = build_ivr_request(
+            query_parameters: {
+              "status" => "feedback_main_menu_prompted"
+            },
+            twilio: {
+              params: {
+                digits: 3
+              }
+            }
+          )
+          flow = EWS1294CambodiaFlow.new(request)
+
+          response = flow.call
+
+          twiml = response_twiml(response_body(response))
+          expect(twiml).to include(
+            "Gather" => include(
+              "action" => "/ivr_flows/ews_1294_cambodia?status=general_feedback_menu_prompted",
+              "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/general_feedback_menu-khm.mp3"
+            )
+          )
+        end
+      end
+
+      it "handles starting over" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "feedback_main_menu_prompted"
+          },
+          twilio: {
+            params: {
+              digits: "*",
+              beneficiary: "+855715100860"
+            }
+          }
+        )
+        flow = EWS1294CambodiaFlow.new(request)
+
+        response = flow.call
+
+        twiml = response_twiml(response_body(response))
+        expect(twiml.fetch("Gather")).to include(
+          "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
+        )
+      end
+
+      it "handles invalid responses" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "feedback_main_menu_prompted"
+          },
+          twilio: {
+            params: {
+              digits: "99"
+            }
+          }
+        )
+        flow = EWS1294CambodiaFlow.new(request)
+
+        response = flow.call
+
+        twiml = response_twiml(response_body(response))
+        expect(twiml.fetch("Gather")).to include(
+          "action" => "/ivr_flows/ews_1294_cambodia?status=feedback_main_menu_prompted",
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/feedback_main_menu-khm.mp3"
+        )
+      end
+
+      it "confirms the feedback was recorded successfully" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "feedback_recorded"
+          }
+        )
+        flow = EWS1294CambodiaFlow.new(request)
+
+        response = flow.call
+
+        twiml = response_twiml(response_body(response))
+        expect(twiml).to include(
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/feedback_successful-khm.mp3",
+          "Hangup" => nil
+        )
+      end
     end
 
     it "handles language selection" do
