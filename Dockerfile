@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7-labs
 
-ARG RUBY_VERSION=3.3
+ARG RUBY_VERSION=3.4
 ARG APP_VERSION=0.0
 ARG APP_SOURCE="https://github.com/open-ews/open-ews-ivr"
 FROM public.ecr.aws/lambda/ruby:$RUBY_VERSION AS build-image
