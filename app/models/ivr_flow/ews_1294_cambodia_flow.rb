@@ -49,12 +49,12 @@ module IVRFlow
 
     class FeedbackMenu < IVRFlow::Menu
       class MainMenu < IVRFlow::Menu
-        SubmenuDefinition = Data.define(:name, :number_of_submenu_choices)
+        SubmenuDefinition = Data.define(:name, :number_of_choices)
 
         SUBMENU_DEFINITIONS = [
-          SubmenuDefinition.new(name: :feedback_registration_issues_menu, number_of_submenu_choices: 2),
-          SubmenuDefinition.new(name: :feedback_content_issues_menu, number_of_submenu_choices: 3),
-          SubmenuDefinition.new(name: :general_feedback_menu, number_of_submenu_choices: 4)
+          SubmenuDefinition.new(name: :feedback_registration_issues_menu, number_of_choices: 2),
+          SubmenuDefinition.new(name: :feedback_content_issues_menu, number_of_choices: 3),
+          SubmenuDefinition.new(name: :general_feedback_menu, number_of_choices: 4)
         ].freeze
 
         def valid_choice?
@@ -66,7 +66,7 @@ module IVRFlow
         end
 
         def submenu(name)
-          Submenu.new(response, number_of_choices: find_submenu_definition(name).number_of_submenu_choices)
+          Submenu.new(response, definition: find_submenu_definition(name))
         end
 
         private
@@ -77,15 +77,19 @@ module IVRFlow
       end
 
       class Submenu < IVRFlow::Menu
-        attr_reader :number_of_choices
+        attr_reader :definition
 
-        def initialize(*, number_of_choices:)
+        def initialize(*, definition:)
           super(*)
-          @number_of_choices = number_of_choices
+          @definition = definition
         end
 
         def valid_choice?
-          (1..number_of_choices).member?(response.choice)
+          (1..definition.number_of_choices).member?(response.choice)
+        end
+
+        def name
+          definition.name
         end
       end
 
@@ -217,7 +221,7 @@ module IVRFlow
     def call
       twiml = case status
       when "answered"
-        prompt_main_menu(before: ->(response) { response.play(url: build_audio_url(filename: :introduction, language: "khm")) })
+        prompt_main_menu(before: -> { it.play(url: build_audio_url(filename: :introduction, language: "khm")) })
       when "main_menu_prompted"
         if main_menu.leave_feedback?
           prompt_feedback_main_menu
@@ -227,23 +231,23 @@ module IVRFlow
       when "feedback_main_menu_prompted"
         menu = feedback_menu.main_menu
         if menu.valid_choice?
-          prompt_feedback_submenu(menu_name: menu.selection.name)
+          prompt_feedback_submenu(menu.selection)
         elsif menu.response.start_over?
           prompt_main_menu
         else
           prompt_feedback_main_menu
         end
-      when *FeedbackMenu::MainMenu::SUBMENU_DEFINITIONS.map { |definition| "#{definition.name}_prompted" }
+      when *FeedbackMenu::MainMenu::SUBMENU_DEFINITIONS.map { "#{it.name}_prompted" }
         menu = feedback_menu.main_menu.submenu(status.delete_suffix("_prompted"))
         if menu.valid_choice?
           record_feedback
         elsif menu.response.start_over?
           prompt_main_menu
         else
-          prompt_feedback_submenu(menu_name: :feedback_registration_issues_menu)
+          prompt_feedback_submenu(menu)
         end
       when "feedback_recorded"
-        twiml_builder.hangup(before: ->(response) { response.play(url: build_audio_url(filename: :feedback_successful, language: "khm", file_extension: "mp3")) })
+        twiml_builder.hangup(before: -> { it.play(url: build_audio_url(filename: :feedback_successful, language: "khm", file_extension: "mp3")) })
       when "language_prompted"
         if language_menu.valid_choice?
           @language = language_menu.selection.id
@@ -293,7 +297,7 @@ module IVRFlow
             }
           )
 
-          twiml_builder.hangup(before: ->(response) { response.play(url: build_audio_url(filename: :registration_successful, language:)) })
+          twiml_builder.hangup(before: -> { it.play(url: build_audio_url(filename: :registration_successful, language:)) })
         elsif commune_menu.response.start_over?
           prompt_main_menu
         else
@@ -370,14 +374,14 @@ module IVRFlow
       prompt(
         action: build_redirect_url(status: :feedback_main_menu_prompted),
         audio_url: build_audio_url(filename: :feedback_main_menu, language: "khm", file_extension: "mp3"),
-        before: ->(response) { response.play(url: build_audio_url(filename: :feedback_introduction, language: "khm")) }
+        before: -> { it.play(url: build_audio_url(filename: :feedback_introduction, language: "khm", file_extension: "mp3")) }
       )
     end
 
-    def prompt_feedback_submenu(menu_name:)
+    def prompt_feedback_submenu(menu)
       prompt(
-        action: build_redirect_url(status: "#{menu_name}_prompted"),
-        audio_url: build_audio_url(filename: menu_name, language: "khm", file_extension: "mp3"),
+        action: build_redirect_url(status: "#{menu.name}_prompted"),
+        audio_url: build_audio_url(filename: menu.name, language: "khm", file_extension: "mp3"),
       )
     end
 
@@ -412,7 +416,7 @@ module IVRFlow
 
     def record_feedback
       twiml_builder.record(
-        before: ->(response) { response.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3")) },
+        before: -> { it.play(url: build_audio_url(filename: :record_feedback_instructions, language: "khm", file_extension: "mp3")) },
         action: build_redirect_url(status: :feedback_recorded)
       )
     end
