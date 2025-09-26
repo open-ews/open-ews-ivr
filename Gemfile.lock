@@ -62,7 +62,7 @@ GEM
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     jmespath (1.6.2)
-    json (2.14.1)
+    json (2.15.0)
     jwt (3.1.2)
       base64
     language_server-protocol (3.17.0.5)
@@ -153,7 +153,7 @@ GEM
       simplecov (~> 0.19)
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
-    twilio-ruby (7.8.1)
+    twilio-ruby (7.8.2)
       faraday (>= 0.9, < 3.0)
       jwt (>= 1.5, < 4.0)
       nokogiri (>= 1.6, < 2.0)
