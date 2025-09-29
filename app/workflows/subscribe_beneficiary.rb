@@ -1,4 +1,4 @@
-class CreateBeneficiary
+class SubscribeBeneficiary
   attr_reader :open_ews_client, :beneficiary_attributes
 
   def initialize(open_ews_client:, **beneficiary_attributes)

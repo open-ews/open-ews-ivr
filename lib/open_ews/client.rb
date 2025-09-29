@@ -30,6 +30,10 @@ module OpenEWS
       do_request(Net::HTTP::Post.new(build_request_uri("/v1/beneficiaries")), body: payload, response_parser: ResponseParser::BeneficiaryParser.new)
     end
 
+    def delete_beneficiary(id:)
+      do_request(Net::HTTP::Delete.new(build_request_uri("/v1/beneficiaries/#{id}")))
+    end
+
     def create_beneficiary_address(beneficiary_id:, **params)
       payload = {
         data: {
@@ -56,12 +60,12 @@ module OpenEWS
       OpenEWS.configuration
     end
 
-    def do_request(req, response_parser:, body: nil)
+    def do_request(req, response_parser: nil, body: nil)
       req.add_field("Content-Type", "application/vnd.api+json; charset=utf-8")
       req.add_field("Authorization", "Bearer #{api_key}")
       req.body = JSON.dump(body) if body
       response = http_client.request(req)
-      response_parser.parse(response.body)
+      response_parser ? response_parser.parse(response.body) : response
     end
 
     def default_http_client(host:)

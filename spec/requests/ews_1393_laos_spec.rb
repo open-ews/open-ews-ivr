@@ -1,11 +1,11 @@
 require "spec_helper"
 
-RSpec.describe "EWS 1939 Laos" do
-  it "handles EWS 1939 Laos flows" do
-    uri = URI("https://ivr.open-ews.org/ivr_flows/ews_1939_laos?province=16&status=district_prompted")
+RSpec.describe "EWS 1393 Laos" do
+  it "handles EWS 1393 Laos flows" do
+    uri = URI("https://ivr.open-ews.org/ivr_flows/ews_1393_laos?province=16&status=district_prompted")
     twilio_params = {
       "From" => "+8562052477750",
-      "To" => "1939",
+      "To" => "1393",
       "Digits" => "1",
       "Direction" => "inbound"
     }
@@ -101,7 +101,7 @@ RSpec.describe "EWS 1939 Laos" do
       headers: {
         "Content-Type" => "application/xml"
       },
-      body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://uploads.open-ews.org/ews_1939_laos/registration_successful-lao.mp3</Play>\n<Hangup/>\n</Response>\n")
+      body: Base64.strict_encode64("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n<Play>https://uploads.open-ews.org/ews_1393_laos/registration_successful-lao.mp3</Play>\n<Hangup/>\n</Response>\n")
     )
   end
 end

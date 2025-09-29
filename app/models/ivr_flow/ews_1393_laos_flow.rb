@@ -1,6 +1,6 @@
 module IVRFlow
-  class EWS1939LaosFlow
-    AUDIO_NAMESPACE = "ews_1939_laos".freeze
+  class EWS1393LaosFlow
+    AUDIO_NAMESPACE = "ews_1393_laos".freeze
     ISO_COUNTRY_CODE = "LA".freeze
 
     class ProvinceMenu < Menu
@@ -48,7 +48,7 @@ module IVRFlow
 
     def initialize(request, **options)
       @request = request
-      @open_ews_client = options.fetch(:open_ews_client) { OpenEWS::Client.new(api_key: options.fetch(:open_ews_api_key) { AppSettings.dig("open_ews_accounts", "ews_1939_laos", "api_key") }) }
+      @open_ews_client = options.fetch(:open_ews_client) { OpenEWS::Client.new(api_key: options.fetch(:open_ews_api_key) { AppSettings.dig("open_ews_accounts", "ews_1393_laos", "api_key") }) }
       @auth_token = options.fetch(:auth_token) { -> { open_ews_client.fetch_account_settings.somleng_auth_token } }
       @app_context = options.fetch(:app_context) { AppContext.new }
       @twiml_builder = options.fetch(:twiml_builder) { TwiMLBuilder.new }
@@ -70,7 +70,7 @@ module IVRFlow
           district = district_menu.selection
 
           ValidateTwilioRequest.call(request:, auth_token:)
-          CreateBeneficiary.call(
+          SubscribeBeneficiary.call(
             open_ews_client:,
             iso_country_code: ISO_COUNTRY_CODE,
             phone_number: request.twilio.beneficiary,
