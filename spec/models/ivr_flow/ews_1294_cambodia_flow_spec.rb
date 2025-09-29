@@ -18,26 +18,53 @@ module IVRFlow
       )
     end
 
-    it "goes to the main menu" do
-      request = build_ivr_request(
-        twilio: {
-          params: {
-            beneficiary: "+855715100860"
+    context "main menu" do
+      it "goes to the main menu" do
+        request = build_ivr_request(
+          twilio: {
+            params: {
+              beneficiary: "+855715100860"
+            }
           }
-        }
-      )
-      flow = EWS1294CambodiaFlow.new(request)
-
-      response = flow.call
-
-      twiml = response_twiml(response_body(response))
-      expect(twiml).to include(
-        "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/introduction-khm.wav",
-        "Gather" => include(
-          "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
-          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
         )
-      )
+        flow = EWS1294CambodiaFlow.new(request)
+
+        response = flow.call
+
+        twiml = response_twiml(response_body(response))
+        expect(twiml).to include(
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/introduction-khm.wav",
+          "Gather" => include(
+            "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+            "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
+          )
+        )
+      end
+
+      it "handles invalid responses" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "main_menu_prompted"
+          },
+          twilio: {
+            params: {
+              digits: "99",
+              beneficiary: "+855715100860"
+            }
+          }
+        )
+        flow = EWS1294CambodiaFlow.new(request)
+
+        response = flow.call
+
+        twiml = response_twiml(response_body(response))
+        expect(twiml).to include(
+          "Gather" => include(
+            "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+            "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
+          )
+        )
+      end
     end
 
     it "handles registration from the main menu" do
