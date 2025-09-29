@@ -9,7 +9,7 @@ module IVRFlow
 
     FLOWS = [
       Flow.new(identifier: "ews_1294_cambodia", handler: EWS1294CambodiaFlow),
-      Flow.new(identifier: "ews_1939_laos", handler: EWS1393LaosFlow)
+      Flow.new(identifier: "ews_1393_laos", handler: EWS1393LaosFlow)
     ]
 
     def self.find(identifier)

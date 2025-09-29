@@ -10,10 +10,10 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
-        "Play" => "https://uploads.open-ews.org/ews_1939_laos/introduction-lao.mp3",
+        "Play" => "https://uploads.open-ews.org/ews_1393_laos/introduction-lao.mp3",
         "Gather" => include(
-          "action" => "/ivr_flows/ews_1939_laos?status=province_prompted",
-          "Play" => "https://uploads.open-ews.org/ews_1939_laos/select_province-lao.mp3"
+          "action" => "/ivr_flows/ews_1393_laos?status=province_prompted",
+          "Play" => "https://uploads.open-ews.org/ews_1393_laos/select_province-lao.mp3"
         )
       )
     end
@@ -35,8 +35,8 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
-        "action" => "/ivr_flows/ews_1939_laos?province=16&status=district_prompted",
-        "Play" => "https://uploads.open-ews.org/ews_1939_laos/16-lao.mp3"
+        "action" => "/ivr_flows/ews_1393_laos?province=16&status=district_prompted",
+        "Play" => "https://uploads.open-ews.org/ews_1393_laos/16-lao.mp3"
       )
     end
 
@@ -57,8 +57,8 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
-        "action" => "/ivr_flows/ews_1939_laos?status=province_prompted",
-        "Play" => "https://uploads.open-ews.org/ews_1939_laos/select_province-lao.mp3"
+        "action" => "/ivr_flows/ews_1393_laos?status=province_prompted",
+        "Play" => "https://uploads.open-ews.org/ews_1393_laos/select_province-lao.mp3"
       )
     end
 
@@ -85,7 +85,7 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml).to include(
-        "Play" => "https://uploads.open-ews.org/ews_1939_laos/registration_successful-lao.mp3",
+        "Play" => "https://uploads.open-ews.org/ews_1393_laos/registration_successful-lao.mp3",
         "Hangup" => nil
       )
     end
@@ -151,8 +151,8 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
-        "action" => "/ivr_flows/ews_1939_laos?province=16&status=district_prompted",
-        "Play" => "https://uploads.open-ews.org/ews_1939_laos/16-lao.mp3"
+        "action" => "/ivr_flows/ews_1393_laos?province=16&status=district_prompted",
+        "Play" => "https://uploads.open-ews.org/ews_1393_laos/16-lao.mp3"
       )
     end
 
@@ -174,14 +174,14 @@ module IVRFlow
 
       twiml = response_twiml(response_body(response))
       expect(twiml.fetch("Gather")).to include(
-        "action" => "/ivr_flows/ews_1939_laos?status=province_prompted",
-        "Play" => "https://uploads.open-ews.org/ews_1939_laos/select_province-lao.mp3"
+        "action" => "/ivr_flows/ews_1393_laos?status=province_prompted",
+        "Play" => "https://uploads.open-ews.org/ews_1393_laos/select_province-lao.mp3"
       )
     end
 
     def build_ivr_request(**options)
       build_twilio_request(
-        path: "/ivr_flows/ews_1939_laos",
+        path: "/ivr_flows/ews_1393_laos",
         **options
       )
     end
