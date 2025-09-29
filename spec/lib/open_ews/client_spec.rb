@@ -296,5 +296,23 @@ module OpenEWS
         )
       end
     end
+
+    describe "#delete_beneficiary" do
+      it "deletes a beneficiary" do
+        client = Client.new(api_key: "open-ews-api-key")
+        stub_request(:delete, "https://api.open-ews.org/v1/beneficiaries/1")
+
+        client.delete_beneficiary(id: 1)
+
+        expect(WebMock).to have_requested(
+          :delete,
+          "https://api.open-ews.org/v1/beneficiaries/1"
+        ).with(
+          headers: {
+            "Authorization" => "Bearer open-ews-api-key"
+          }
+        )
+      end
+    end
   end
 end

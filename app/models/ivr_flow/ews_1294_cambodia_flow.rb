@@ -33,17 +33,25 @@ module IVRFlow
     end
 
     class MainMenu < IVRFlow::Menu
-      FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS = [
+      FEATURE_FLAG_PHONE_NUMBERS = [
         "+855715100860", "+85570753999", "+855966164166", "+85592943196", "+855965636025",
         "+85578746371", "+85512716884", "+855966946549", "+85511765511"
       ].freeze
+
+      def subscribe?
+        response.choice == 1
+      end
 
       def leave_feedback?
         response.choice == 2
       end
 
-      def feedback_enabled?
-        FEEDBACK_FEATURE_FLAG_PHONE_NUMBERS.include?(response.request.twilio.beneficiary)
+      def unsubscribe?
+        response.choice == 3
+      end
+
+      def enabled?
+        FEATURE_FLAG_PHONE_NUMBERS.include?(response.request.twilio.beneficiary)
       end
     end
 
@@ -61,6 +69,12 @@ module IVRFlow
 
       def selection
         PROMPTS[response.choice - 1] if valid_choice?
+      end
+    end
+
+    class UnsubscribeMenu < IVRFlow::Menu
+      def unsubscribe?
+        response.choice == 1
       end
     end
 
@@ -189,10 +203,27 @@ module IVRFlow
       when "answered"
         prompt_main_menu(before: -> { it.play(url: build_audio_url(filename: :introduction, language: "khm")) })
       when "main_menu_prompted"
-        if main_menu.leave_feedback?
-          prompt_feedback_menu
-        else
+        if main_menu.subscribe?
           prompt_language
+        elsif main_menu.leave_feedback?
+          prompt_feedback_menu
+        elsif main_menu.unsubscribe?
+          prompt_unsubscribe_confirmation
+        else
+          prompt_main_menu
+        end
+      when "unsubscribe_confirmation_prompted"
+        if unsubscribe_menu.unsubscribe?
+          ValidateTwilioRequest.call(request:, auth_token:)
+          UnsubscribeBeneficiary.call(
+            open_ews_client:,
+            phone_number: request.twilio.beneficiary
+          )
+          twiml_builder.hangup(before: -> { it.play(url: build_audio_url(filename: :unsubscribe_successful, language: "khm", file_extension: "mp3")) })
+        elsif unsubscribe_menu.response.start_over?
+          prompt_main_menu
+        else
+          prompt_unsubscribe_confirmation
         end
       when "feedback_menu_prompted"
         if feedback_menu.valid_choice?
@@ -236,7 +267,7 @@ module IVRFlow
           commune = commune_menu.selection
 
           ValidateTwilioRequest.call(request:, auth_token:)
-          CreateBeneficiary.call(
+          SubscribeBeneficiary.call(
             open_ews_client:,
             iso_country_code: ISO_COUNTRY_CODE,
             phone_number: request.twilio.beneficiary,
@@ -286,6 +317,10 @@ module IVRFlow
       @feedback_menu ||= FeedbackMenu.new(menu_response)
     end
 
+    def unsubscribe_menu
+      @unsubscribe_menu ||= UnsubscribeMenu.new(menu_response)
+    end
+
     def language_menu
       @language_menu ||= LanguageMenu.new(menu_response)
     end
@@ -315,7 +350,7 @@ module IVRFlow
     end
 
     def prompt_main_menu(**)
-      if main_menu.feedback_enabled?
+      if main_menu.enabled?
         prompt(
           action: build_redirect_url(status: :main_menu_prompted),
           audio_url: build_audio_url(filename: :main_menu, language: "khm", file_extension: "mp3"),
@@ -331,6 +366,13 @@ module IVRFlow
         action: build_redirect_url(status: :feedback_menu_prompted),
         audio_url: build_audio_url(filename: :feedback_menu, language: "khm", file_extension: "mp3"),
         before: -> { it.play(url: build_audio_url(filename: :feedback_introduction, language: "khm", file_extension: "mp3")) }
+      )
+    end
+
+    def prompt_unsubscribe_confirmation
+      prompt(
+        action: build_redirect_url(status: :unsubscribe_confirmation_prompted),
+        audio_url: build_audio_url(filename: :unsubscribe_confirmation, language: "khm", file_extension: "mp3"),
       )
     end
 

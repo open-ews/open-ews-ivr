@@ -1,5 +1,5 @@
 module IVRFlow
-  class EWS1939LaosFlow
+  class EWS1393LaosFlow
     AUDIO_NAMESPACE = "ews_1939_laos".freeze
     ISO_COUNTRY_CODE = "LA".freeze
 
@@ -70,7 +70,7 @@ module IVRFlow
           district = district_menu.selection
 
           ValidateTwilioRequest.call(request:, auth_token:)
-          CreateBeneficiary.call(
+          SubscribeBeneficiary.call(
             open_ews_client:,
             iso_country_code: ISO_COUNTRY_CODE,
             phone_number: request.twilio.beneficiary,

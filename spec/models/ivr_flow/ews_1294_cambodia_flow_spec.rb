@@ -175,6 +175,104 @@ module IVRFlow
       end
     end
 
+    context "when unsubscribing" do
+      it "handles navigation from the main menu" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "main_menu_prompted"
+          },
+          twilio: {
+            params: {
+              digits: 3
+            }
+          }
+        )
+        flow = EWS1294CambodiaFlow.new(request)
+
+        response = flow.call
+
+        twiml = response_twiml(response_body(response))
+        expect(twiml).to include(
+          "Gather" => include(
+            "action" => "/ivr_flows/ews_1294_cambodia?status=unsubscribe_confirmation_prompted",
+            "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/unsubscribe_confirmation-khm.mp3"
+          )
+        )
+      end
+
+      it "handles unsubscribing" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "unsubscribe_confirmation_prompted"
+          },
+          twilio: {
+            params: {
+              digits: 1
+            },
+            auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b"
+          }
+        )
+        open_ews_client = build_fake_open_ews_client(list_beneficiaries: [ build_beneficiary(id: 1) ])
+        flow = EWS1294CambodiaFlow.new(request, open_ews_client:, auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b")
+
+        response = flow.call
+
+        expect(open_ews_client).to have_received(:delete_beneficiary).with(id: 1)
+        twiml = response_twiml(response_body(response))
+        expect(twiml).to include(
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/unsubscribe_successful-khm.mp3",
+          "Hangup" => nil
+        )
+      end
+
+      it "handles starting over" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "unsubscribe_confirmation_prompted"
+          },
+          twilio: {
+            params: {
+              digits: "*",
+              beneficiary: "+855715100860"
+            }
+          }
+        )
+        flow = EWS1294CambodiaFlow.new(request)
+
+        response = flow.call
+
+        twiml = response_twiml(response_body(response))
+        expect(twiml.fetch("Gather")).to include(
+          "action" => "/ivr_flows/ews_1294_cambodia?status=main_menu_prompted",
+          "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/main_menu-khm.mp3"
+        )
+      end
+
+      it "handles invalid responses" do
+        request = build_ivr_request(
+          query_parameters: {
+            "status" => "unsubscribe_confirmation_prompted"
+          },
+          twilio: {
+            params: {
+              digits: "99"
+            }
+          }
+        )
+        flow = EWS1294CambodiaFlow.new(request)
+
+        response = flow.call
+
+        twiml = response_twiml(response_body(response))
+        expect(twiml).to include(
+          "Gather" => include(
+            "action" => "/ivr_flows/ews_1294_cambodia?status=unsubscribe_confirmation_prompted",
+            "Play" => "https://uploads.open-ews.org/ews_1294_cambodia/unsubscribe_confirmation-khm.mp3"
+          )
+        )
+      end
+    end
+
     it "handles language selection" do
       request = build_ivr_request(
         query_parameters: {

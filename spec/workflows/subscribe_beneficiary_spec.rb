@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe CreateBeneficiary do
+RSpec.describe SubscribeBeneficiary do
   it "creates a beneficiary" do
     open_ews_client = build_fake_open_ews_client
     attributes = {
@@ -15,7 +15,7 @@ RSpec.describe CreateBeneficiary do
       }
     }
 
-    CreateBeneficiary.call(open_ews_client:, **attributes)
+    SubscribeBeneficiary.call(open_ews_client:, **attributes)
 
     expect(open_ews_client).to have_received(:list_beneficiaries).with(
       hash_including(
@@ -47,7 +47,7 @@ RSpec.describe CreateBeneficiary do
       address: address_attributes
     }
 
-    CreateBeneficiary.call(open_ews_client:, **attributes)
+    SubscribeBeneficiary.call(open_ews_client:, **attributes)
 
     expect(open_ews_client).not_to have_received(:create_beneficiary)
     expect(open_ews_client).to have_received(:create_beneficiary_address).with(beneficiary_id: "1", **address_attributes)
@@ -71,7 +71,7 @@ RSpec.describe CreateBeneficiary do
       address: address_attributes
     }
 
-    CreateBeneficiary.call(open_ews_client:, **attributes)
+    SubscribeBeneficiary.call(open_ews_client:, **attributes)
 
     expect(open_ews_client).not_to have_received(:create_beneficiary)
     expect(open_ews_client).not_to have_received(:create_beneficiary_address)
