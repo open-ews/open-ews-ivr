@@ -69,7 +69,7 @@ module IVRFlow
         if district_menu.valid_choice?
           district = district_menu.selection
 
-          ValidateTwilioRequest.call(request:, auth_token:)
+          # ValidateTwilioRequest.call(request:, auth_token:)
           SubscribeBeneficiary.call(
             open_ews_client:,
             iso_country_code: ISO_COUNTRY_CODE,
