@@ -12,7 +12,8 @@ RSpec.describe UnsubscribeBeneficiary do
           phone_number: {
             eq: "+855715100900"
           }
-        }
+        },
+        include: :addresses
       )
     )
     expect(open_ews_client).to have_received(:delete_beneficiary).with(id: 1)
