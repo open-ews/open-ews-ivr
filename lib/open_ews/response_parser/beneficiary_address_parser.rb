@@ -4,6 +4,8 @@ module OpenEWS
       def parse(...)
         resource = super
 
+        return OpenEWS::Resource::BeneficiaryAddress.empty if resource.attributes.empty?
+
         OpenEWS::Resource::BeneficiaryAddress.new(
           iso_region_code: resource.attributes.fetch("iso_region_code"),
           administrative_division_level_2_code: resource.attributes.fetch("administrative_division_level_2_code"),
