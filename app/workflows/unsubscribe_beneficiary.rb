@@ -30,7 +30,8 @@ class UnsubscribeBeneficiary
         phone_number: {
           eq: phone_number
         }
-      }
+      },
+      include: :addresses
     )
   end
 
