@@ -567,6 +567,7 @@ module IVRFlow
         iso_language_code: "cmo",
         iso_country_code: "KH",
         phone_number: "+855715100900",
+        status: "active",
         metadata: {
           created_by: {
             ivr_flow: "IVRFlow::EWS1294CambodiaFlow",
@@ -582,6 +583,39 @@ module IVRFlow
           administrative_division_level_3_code: "110203",
           administrative_division_level_3_name: "Roya"
         }
+      )
+    end
+
+    it "creates a disabled beneficiary" do
+      request = build_ivr_request(
+        query_parameters: {
+          "status" => "commune_prompted",
+          "language" => "khm",
+          "province" => "11",
+          "district" => "1102"
+        },
+        twilio: {
+          params: {
+            digits: 3,
+            from: "+85512239888"
+          },
+          auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b"
+        }
+      )
+      open_ews_client = build_fake_open_ews_client
+      flow = EWS1294CambodiaFlow.new(
+        request,
+        auth_token: "6GmFR2ny48GrmlIldBTg9fG4OC6lI5W5Pn70YkADD1b",
+        open_ews_client:
+      )
+
+      flow.call
+
+      expect(open_ews_client).to have_received(:create_beneficiary).with(
+        hash_including(
+          phone_number: "+85512239888",
+          status: "disabled"
+        )
       )
     end
 

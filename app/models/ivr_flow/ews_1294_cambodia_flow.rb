@@ -188,6 +188,29 @@ module IVRFlow
       end
     end
 
+    class BeneficiaryStatus
+      DEACTIVATED_PREFIXES = [
+        "+85511", "+85512", "+85514", "+85517", "+85561", "+85576", "+85577", "+85578", "+85585", "+85589", "+85592",
+        "+85595", "+85599", "+8552350", "+8552353", "+8552355", "+8552450", "+8552453", "+8552455", "+8552550",
+        "+8552553", "+8552555", "+8552650", "+8552653", "+8552655", "+8553250", "+8553253", "+8553255", "+8553350",
+        "+8553353", "+8553355", "+8553450", "+8553453", "+8553455", "+8553550", "+8553553", "+8553555", "+8553650",
+        "+8553653", "+8553655", "+8554250", "+8554253", "+8554255", "+8554350", "+8554353", "+8554355", "+8554450",
+        "+8554453", "+8554455", "+8554550", "+8554553", "+8554555", "+8555250", "+8555253", "+8555255", "+8555350",
+        "+8555353", "+8555355", "+8555450", "+8555453", "+8555455", "+8555550", "+8555553", "+8555555", "+8556250",
+        "+8556253", "+8556255", "+8556350", "+8556353", "+8556355", "+8556450", "+8556453", "+8556455", "+8556550",
+        "+8556553", "+8556555", "+8557250", "+8557253", "+8557255", "+8557350", "+8557353", "+8557355", "+8557450",
+        "+8557453", "+8557455", "+8557550", "+8557553", "+8557555"
+      ]
+
+      def initialize(phone_number)
+        @phone_number = phone_number
+      end
+
+      def status
+        DEACTIVATED_PREFIXES.any? { @phone_number.start_with?(it) } ? "disabled" : "active"
+      end
+    end
+
     attr_reader :request, :open_ews_client, :app_context, :twiml_builder
 
     def initialize(request, **options)
@@ -272,6 +295,7 @@ module IVRFlow
             iso_country_code: ISO_COUNTRY_CODE,
             phone_number: request.twilio.beneficiary,
             iso_language_code: language,
+            status: BeneficiaryStatus.new(request.twilio.beneficiary).status,
             metadata: {
               created_by: app_context.as_json.merge(ivr_flow: self.class.name)
             },
