@@ -162,7 +162,7 @@ GEM
       rexml
       simplecov (~> 1.0)
     timeout (0.6.1)
-    twilio-ruby (7.13.0)
+    twilio-ruby (7.13.1)
       faraday (>= 2.0, < 3.0)
       jwt (>= 1.5, < 4.0)
       nokogiri (>= 1.6, < 2.0)
