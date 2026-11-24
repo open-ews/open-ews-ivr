@@ -97,7 +97,7 @@ GEM
     public_suffix (7.0.5)
     pumi (0.45.1)
     racc (1.8.1)
-    rack (3.2.8)
+    rack (3.2.9)
     rainbow (3.1.1)
     rake (13.4.2)
     regexp_parser (2.13.4)
